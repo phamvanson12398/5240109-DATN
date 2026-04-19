@@ -2,12 +2,19 @@ import { loadEnvironment } from "./config/loadEnv.js";
 
 loadEnvironment();
 
+import user from './routes/userRoutes.js';
 import express from 'express';
+import cookieParser from 'cookie-parser';
+import passport from "passport";
+import { configurePassport } from "./config/passportConfig.js";
+
 
 const app = express();
+app.use(express.json());
+app.use(cookieParser());
 
-
-
+configurePassport();
+app.use(passport.initialize());
 
 
 
@@ -42,5 +49,6 @@ app.get('/', (req, res) => {
   });
 });
 
+app.use("/api/v1", user);
 
 export default app;

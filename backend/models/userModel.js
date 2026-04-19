@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'user'
     },
+    role_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Role'
+    },
     googleId: {
         type: String,
         unique: true,
@@ -75,9 +79,7 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre("save", async function(next){ 
     
-    // 1st cập nhật hồ sơ ( name, email, image) password đã hash thì sẽ dc hashed  lại 
-
-    // 2nd cập nhật password ( nếu không thay đổi password thì không cần hash lại)
+    
     if(!this.isModified("password")) {
         return next();
 

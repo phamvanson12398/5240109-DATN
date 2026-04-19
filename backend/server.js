@@ -1,6 +1,7 @@
 import app from "./app.js";
 import { loadEnvironment } from "./config/loadEnv.js";
-
+import { initializeApp } from "./config/bootstrap.js";
+import { initDB } from "./config/initDB.js";
 loadEnvironment();
 
 process.on("uncaughtException", (err) => {
@@ -14,6 +15,8 @@ let server;
 
 const startServer = async () => {
     try {
+        await initializeApp();
+        // await initDB()
         server = app.listen(port, () => {
             console.log(`Server hoat dong tren may chu: ${port}`);
         });

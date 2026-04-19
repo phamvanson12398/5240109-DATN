@@ -1,3 +1,7 @@
+import mongoose from "mongoose";
+import validator from "validator";
+
+
 const settingsSchema = new mongoose.Schema({
     // ========== THÔNG TIN CÁ NHÂN ==========
     adminName: {
