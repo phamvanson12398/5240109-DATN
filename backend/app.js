@@ -11,6 +11,7 @@ import { configurePassport } from "./config/passportConfig.js";
 import fileUpload from 'express-fileupload';
 import cart from './routes/cartRoutes.js';
 import order from './routes/orderRoutes.js';
+import admin from './routes/adminRoutes.js';
 
 const app = express();
 app.use(cookieParser());
@@ -58,4 +59,5 @@ app.use("/api/v1", user);
 app.use("/api/v1", product);
 app.use("/api/v1/cart", cart);
 app.use("/api/v1", order);
+app.use("/api/v1/admin", admin);
 export default app;
