@@ -136,11 +136,6 @@ export const updateProduct = handleAsyncError(async (req, res, next) => {
         return next(new HandleError("Sản phẩm không tồn tại", 404));
     }
 
-    console.log("---------- [DEEP DEBUG] ----------");
-    console.log("ID nhận được:", req.params.id);
-    console.log("Vibe từ Body:", req.body.vibe);
-    console.log("Style từ Body:", req.body.style);
-    console.log("Schema Paths:", Object.keys(Product.schema.paths).filter(p => ['vibe', 'style', 'trending'].includes(p)));
 
     // 1. Xử lý Hình ảnh
     let images = [];

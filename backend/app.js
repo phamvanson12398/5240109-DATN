@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import passport from "passport";
 import { configurePassport } from "./config/passportConfig.js";
 import fileUpload from 'express-fileupload';
+import cart from './routes/cartRoutes.js';
 
 const app = express();
 app.use(cookieParser());
@@ -54,4 +55,5 @@ app.get('/', (req, res) => {
 
 app.use("/api/v1", user);
 app.use("/api/v1", product);
+app.use("/api/v1/cart", cart);
 export default app;
