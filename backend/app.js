@@ -12,6 +12,7 @@ import fileUpload from 'express-fileupload';
 import cart from './routes/cartRoutes.js';
 import order from './routes/orderRoutes.js';
 import admin from './routes/adminRoutes.js';
+import settings from './routes/settingsRoutes.js';
 
 const app = express();
 app.use(cookieParser());
@@ -60,4 +61,5 @@ app.use("/api/v1", product);
 app.use("/api/v1/cart", cart);
 app.use("/api/v1", order);
 app.use("/api/v1/admin", admin);
+app.use("/api/v1", settings);
 export default app;
