@@ -13,6 +13,7 @@ import cart from './routes/cartRoutes.js';
 import order from './routes/orderRoutes.js';
 import admin from './routes/adminRoutes.js';
 import settings from './routes/settingsRoutes.js';
+import address from './routes/addressRoute.js';
 
 const app = express();
 app.use(cookieParser());
@@ -62,4 +63,5 @@ app.use("/api/v1/cart", cart);
 app.use("/api/v1", order);
 app.use("/api/v1/admin", admin);
 app.use("/api/v1", settings);
+app.use("/api/v1/address", address);
 export default app;
