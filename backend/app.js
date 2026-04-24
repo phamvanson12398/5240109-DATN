@@ -14,6 +14,7 @@ import order from './routes/orderRoutes.js';
 import admin from './routes/adminRoutes.js';
 import settings from './routes/settingsRoutes.js';
 import address from './routes/addressRoute.js';
+import payment from './routes/paymentRoutes.js';
 
 const app = express();
 app.use(cookieParser());
@@ -64,4 +65,5 @@ app.use("/api/v1", order);
 app.use("/api/v1/admin", admin);
 app.use("/api/v1", settings);
 app.use("/api/v1/address", address);
+app.use("/api/v1", payment);
 export default app;

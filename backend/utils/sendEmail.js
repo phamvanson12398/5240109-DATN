@@ -48,3 +48,4 @@ const sendEmail = async (to, subject, htmlContent) => {
 
 // Export cả 2 kiểu để tương thích tuyệt đối với toàn bộ codebase hiện tại
 export { sendEmail }; 
+export default sendEmail;
