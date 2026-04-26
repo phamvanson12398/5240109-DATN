@@ -6,6 +6,7 @@ import user from './routes/userRoutes.js';
 import product from './routes/productRoutes.js';
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import errorHandleMiddleware from './middleware/error.js';
 import passport from "passport";
 import { configurePassport } from "./config/passportConfig.js";
 import fileUpload from 'express-fileupload';
@@ -15,6 +16,7 @@ import admin from './routes/adminRoutes.js';
 import settings from './routes/settingsRoutes.js';
 import address from './routes/addressRoute.js';
 import payment from './routes/paymentRoutes.js';
+import vouchers from './routes/v2/promoRoutes.js';
 
 const app = express();
 app.use(cookieParser());
@@ -66,4 +68,8 @@ app.use("/api/v1/admin", admin);
 app.use("/api/v1", settings);
 app.use("/api/v1/address", address);
 app.use("/api/v1", payment);
+app.use("/api/v1/vouchers", vouchers);
+
+
+app.use(errorHandleMiddleware);
 export default app;
