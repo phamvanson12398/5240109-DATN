@@ -135,7 +135,7 @@ const updateOrderPaymentStatus = async (query) => {
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
                         <h2 style="color: #2e7d32; text-align: center;">Thanh toán thành công!</h2>
                         <p>Chào <strong>${order.user_id.name}</strong>,</p>
-                        <p>Cảm ơn bạn đã mua sắm tại <strong>Tobi Shop</strong>. Chúng tôi đã nhận được thanh toán cho đơn hàng của bạn qua <strong>VNPay</strong>.</p>
+                        <p>Cảm ơn bạn đã mua sắm tại <strong> Sach oi </strong>. Chúng tôi đã nhận được thanh toán cho đơn hàng của bạn qua <strong>VNPay</strong>.</p>
                         
                         <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
                             <h3 style="margin-top: 0; color: #555;">Thông tin đơn hàng:</h3>
@@ -169,7 +169,7 @@ const updateOrderPaymentStatus = async (query) => {
                         <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
                         <p style="font-size: 12px; color: #999; text-align: center;">
                             Đây là email tự động, vui lòng không phản hồi.<br>
-                            &copy; 2026 Tobi Shop. All rights reserved.
+                            &copy; 2026 Sach oi. All rights reserved.
                         </p>
                     </div>
                 `;
