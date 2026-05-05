@@ -1,0 +1,87 @@
+.hover-link-slide {
+  position: relative;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  display: inline-block;
+}
+
+.hover-link-slide::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; /* Adjust based on padding */
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #ff6b6b, #ee5a6f);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.hover-link-slide:hover {
+  color: #ff6b6b !important;
+}
+
+.hover-link-slide:hover::after,
+.hover-link-slide.active::after {
+  width: 100%;
+}
+
+/* 2. Gradient Button with Scale & Shadow */
+.hover-btn-gradient {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  color: white !important;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.hover-btn-gradient:hover {
+  transform: translateY(-2px) scale(1.02); /* Adjust scale for bigger buttons */
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5);
+  color: white !important;
+}
+
+.hover-btn-gradient:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* 3. Icon Button with Background Fade & Scale */
+.hover-icon-btn {
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hover-icon-btn:hover {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%) !important;
+  color: #ff6b6b !important;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
+  border-color: transparent !important;
+}
+
+.hover-icon-btn:active {
+  transform: scale(0.95);
+}
+
+/* 4. Subdued hover (Soft red outline/text for secondary buttons) */
+.hover-btn-outline {
+  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.hover-btn-outline:hover {
+  border-color: #ff6b6b;
+  color: #ff6b6b !important;
+  background: #fef2f2;
+}
+
+/* 5. Scale up Element (For Cards/Images) */
+.hover-scale-up {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale-up:hover {
+  transform: scale(1.05);
+}
