@@ -1,3 +1,9 @@
+/**
+ * 1. FILE NÀY LÀ GÌ: 
+ *    Đây là file Cấu hình xác thực (Authentication Configuration) sử dụng thư viện Passport.js.
+ * 
+ * 
+ */
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
@@ -45,7 +51,7 @@ export const configurePassport = () => {
         clientID: process.env.FACEBOOK_APP_ID || 'placeholder',
         clientSecret: process.env.FACEBOOK_APP_SECRET || 'placeholder',
         callbackURL: "/api/v1/auth/facebook/callback",
-        profileFields: ['id', 'displayName', 'photos', 'email']
+        profileFields: ['id', 'displayName', 'photos', 'emails']
     }, async (accessToken, refreshToken, profile, done) => {
         try {
             let user = await User.findOne({ 

@@ -11,7 +11,7 @@ export const getProduct = createAsyncThunk('product/getProduct',
 
       // Filter: category
       if (category) {
-        link += `&category=${category}`;
+        link += `&category=${encodeURIComponent(category)}`;
       }
 
       // Search: keyword

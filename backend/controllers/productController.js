@@ -13,7 +13,7 @@ import { v2 as cloudinary } from 'cloudinary';
 // tao san pham 
 export const createProducts = handleAsyncError(async (req, res, next) => {
     console.log(req.body);
-    
+
     let images = [];
     if (typeof req.body.images === "string") {
         images.push(req.body.images);
@@ -59,11 +59,11 @@ export const createProducts = handleAsyncError(async (req, res, next) => {
         try {
             req.body.category = JSON.parse(req.body.category);
         } catch (error) {
-            
+
             return next(new HandleError("Dữ liệu category không hợp lệ, vui lòng gửi dạng Object {level1, level2, level3}", 400));
         }
     }
-    
+
     const product = await Product.create(req.body);
 
     res.status(201).json({
@@ -75,10 +75,12 @@ export const createProducts = handleAsyncError(async (req, res, next) => {
 
 // Lấy tất cả sản phẩm 
 export const getAllProducts = handleAsyncError(async (req, res, next) => {
-    const resultPerPage = 10
+    const resultPerPage = 12
 
     const apiFeatures = new APIFunctionality(Product.find(), req.query)
         .search().filter().sort()
+    console.log(req.query);
+
     // lọc filter trước khi phân trang 
     const filteredQuery = apiFeatures.query.clone()  // tạo bản sao của query để đếm số lượng sản phẩm sau khi filter
     const productCount = await filteredQuery.countDocuments()
@@ -98,6 +100,7 @@ export const getAllProducts = handleAsyncError(async (req, res, next) => {
     let relatedProducts = [];
     let hasResults = products.length > 0;
 
+
     // Nếu không có kết quả, gọi service gợi ý (Level 1)
     if (!hasResults) {
         // Lấy category từ query (nếu có map trong APIFunctionality)
@@ -108,7 +111,6 @@ export const getAllProducts = handleAsyncError(async (req, res, next) => {
             category: mappedCategory || {
                 level1: req.query.level1,
                 level2: req.query.level2,
-                level3: req.query.level3
             },
             limit: 8
         });
@@ -186,7 +188,7 @@ export const updateProduct = handleAsyncError(async (req, res, next) => {
     res.status(200).json({
         success: true,
         product,
-        _tobi_debug: {
+        _sach_debug: {
             received_vibe: req.body.vibe,
             received_style: req.body.style,
             schema_keys: Object.keys(Product.schema.paths)
@@ -356,9 +358,7 @@ export const importProducts = handleAsyncError(async (req, res, next) => {
         const file = req.files.file;
 
         try {
-            // Check file type (optional, but good practice)
-            // const ext = file.name.split('.').pop().toLowerCase();
-            // if (!['xlsx', 'xls', 'csv'].includes(ext)) { ... }
+
 
             // Read the file data into a workbook
             const workbook = xlsx.read(file.data, { type: 'buffer' });
@@ -411,25 +411,106 @@ export const importProducts = handleAsyncError(async (req, res, next) => {
         };
 
         const item = {
-            name: getValue(['Tên', 'Tên sản phẩm', 'Name', 'name']),
-            description: getValue(['Mô Tả', 'Mô tả', 'Description', 'description']),
-            price: getValue(['Giá Bán', 'Giá bán', 'Price', 'price']),
-            originalPrice: getValue(['Giá Gốc', 'Giá gốc', 'Original Price', 'originalPrice']),
-            stock: getValue(['Tồn Kho', 'Tồn kho', 'Số lượng', 'Stock', 'stock']),
-            categoryLevel1: getValue(['Danh Mục Cấp 1', 'Danh mục cấp 1', 'Category Level 1', 'level1', 'category_level1', 'category.level1']),
-            categoryLevel2: getValue(['Danh Mục Cấp 2', 'Danh mục cấp 2', 'Category Level 2', 'level2', 'category_level2', 'category.level2']),
-            categoryLevel3: getValue(['Danh Mục Cấp 3', 'Danh mục cấp 3', 'Category Level 3', 'level3', 'category_level3', 'category.level3']),
-            publisher: getValue(['Tác giả', 'Người sáng tác']),
-            publishyear: getValue(['Năm xuất bản']),
-            sold: getValue['sold','số lượng'],
-            page: getValue['số trang','page'],
-            language:getValue['language','ngôn ngữ'],
-            keyword:['keyword','từ khóa']
+            sku: getValue([
+                'sku'
+            ]),
+            name: getValue([
+                'Tên',
+                'Tên sản phẩm',
+                'Name',
+                'name'
+            ]),
+
+            description: getValue([
+                'Mô Tả',
+                'Mô tả',
+                'Description',
+                'description'
+            ]),
+
+            // Giá & kho
+            price: getValue([
+                'Giá Bán',
+                'Giá bán',
+                'Price',
+                'price'
+            ]),
+
+            originalPrice: getValue([
+                'Giá Gốc',
+                'Giá gốc',
+                'Original Price',
+                'originalPrice'
+            ]),
+
+            stock: getValue([
+                'Tồn Kho',
+                'Tồn kho',
+                'Số lượng',
+                'Stock',
+                'stock'
+            ]),
+
+            sold: getValue([
+                'Đã bán',
+                'Sold',
+                'sold'
+            ]),
+
+            // Category 2 cấp
+            categoryLevel1: getValue([
+                'Danh Mục Cấp 1',
+                'Danh mục cấp 1',
+                'Category Level 1',
+                'level1',
+                'category_level1',
+                'category.level1'
+            ]),
+
+            categoryLevel2: getValue([
+                'Danh Mục Cấp 2',
+                'Danh mục cấp 2',
+                'Category Level 2',
+                'level2',
+                'category_level2',
+                'category.level2'
+            ]),
+
+            // Thông tin sách
+            publisher: getValue([
+                'Nhà xuất bản',
+                'Publisher',
+                'publisher'
+            ]),
+            publishYear: getValue([
+                'Năm xuất bản',
+                'Publish Year',
+                'publishYear'
+            ]),
+
+            page: getValue([
+                'Số trang',
+                'Page',
+                'page'
+            ]),
+
+            language: getValue([
+                'Ngôn ngữ',
+                'Language',
+                'language'
+            ]),
+
+            // Keywords
+            keyword: getValue([
+                'Từ khóa',
+                'Keyword',
+                'keyword'
+            ]),
         };
 
         try {
             // Validate required fields
-           
+
             if (!item.name || !String(item.name).trim()) {
                 errors.push({ row: i + 2, name: item.name || '', message: 'Thiếu trường Tên (name)' });
                 continue;
@@ -446,20 +527,22 @@ export const importProducts = handleAsyncError(async (req, res, next) => {
                 errors.push({ row: i + 2, name: item.name, message: 'Trường Tồn kho (stock) không hợp lệ' });
                 continue;
             }
-            if (!item.categoryLevel1 || !item.categoryLevel2 || !item.categoryLevel3) {
+            if (!item.categoryLevel1 || !item.categoryLevel2) {
                 const oldCategory = getValue(['Danh mục', 'Category', 'category']);
                 if (oldCategory) {
-                    errors.push({ row: i + 2, name: item.name, message: 'File mẫu cũ. Cần cập nhật sang 3 cột Danh Mục Cấp 1, 2, 3.' });
+                    errors.push({ row: i + 2, name: item.name, message: 'File mẫu cũ. Cần cập nhật sang 3 cột Danh Mục Cấp 1, 2.' });
                 } else {
-                    errors.push({ row: i + 2, name: item.name, message: 'Thiếu thông tin Danh mục cấp 1/2/3' });
+                    errors.push({ row: i + 2, name: item.name, message: 'Thiếu thông tin Danh mục cấp 1/2' });
                 }
                 continue;
             }
 
 
+            const productSku = String(item.sku).trim();
             const productName = String(item.name).trim();
 
             const productData = {
+                sku: productSku,
                 name: productName,
                 description: String(item.description).trim(),
                 price: Number(item.price),
@@ -468,24 +551,26 @@ export const importProducts = handleAsyncError(async (req, res, next) => {
                 category: {
                     level1: String(item.categoryLevel1).trim(),
                     level2: String(item.categoryLevel2).trim(),
-                    level3: String(item.categoryLevel3).trim(),
                 },
+                keyword: [
+                    String(item.keyword).trim(),
+                ],
                 publisher: item.publisher ? String(item.publisher).trim() : 'No publisher',
                 material: item.material ? String(item.material).trim() : '',
-                sold:Number(item.sold),
+                sold: Number(item.sold),
                 language: String(item.language),
                 page: Number(item.page),
-                keyword : String(item.keyword),
                 user: req.user.id
             };
 
-         
+
+            let existingProduct = await Product.findOne({ sku: productSku });
 
             // Determine import mode for this item
             const importMode = rawItem._importMode || 'auto'; // auto, overwrite, accumulate, skip
 
             if (existingProduct) {
-                
+
                 if (importMode === 'accumulate') {
                     // Only add stock, keep everything else
                     existingProduct.stock += Number(item.stock);
@@ -608,25 +693,81 @@ export const updateProductsBulk = handleAsyncError(async (req, res, next) => {
 
         const catL1 = getValue(['Danh Mục Cấp 1', 'Danh mục cấp 1', 'Category Level 1', 'level1', 'category_level1', 'category.level1']);
         const catL2 = getValue(['Danh Mục Cấp 2', 'Danh mục cấp 2', 'Category Level 2', 'level2', 'category_level2', 'category.level2']);
-        const catL3 = getValue(['Danh Mục Cấp 3', 'Danh mục cấp 3', 'Category Level 3', 'level3', 'category_level3', 'category.level3']);
 
-        if (catL1 || catL2 || catL3) {
+        if (catL1 || catL2) {
             updateData.category = {
                 level1: String(catL1 || product.category.level1).trim(),
                 level2: String(catL2 || product.category.level2).trim(),
-                level3: String(catL3 || product.category.level3).trim(),
             }
         }
 
-        const vibe = getValue(['Vibe', 'Cảm hứng', 'vibe']);
-        if (vibe !== null) updateData.vibe = String(vibe).trim();
+        const publisher = getValue([
+            'Nhà xuất bản',
+            'Publisher',
+            'publisher'
+        ]);
 
-        const style = getValue(['Style', 'Phong cách', 'style']);
-        if (style !== null) updateData.style = String(style).trim();
+        if (publisher !== null) {
+            updateData.publisher = String(publisher).trim();
+        }
 
-        const trending = getValue(['Trending', 'Xu hướng', 'Hot', 'trending']);
-        if (trending !== null) updateData.trending = trending === true || String(trending).toLowerCase() === 'true' || trending === 1;
+        const publishYear = getValue([
+            'Năm xuất bản',
+            'Publish Year',
+            'publishYear'
+        ]);
 
+        if (publishYear !== null) {
+            updateData.publishYear = Number(publishYear);
+        }
+
+        const page = getValue([
+            'Số trang',
+            'Page',
+            'page'
+        ]);
+
+        if (page !== null) {
+            updateData.page = Number(page);
+        }
+
+        const language = getValue([
+            'Ngôn ngữ',
+            'Language',
+            'language'
+        ]);
+
+        if (language !== null) {
+            updateData.language = String(language).trim();
+        }
+
+        const status = getValue([
+            'Trạng thái',
+            'Status',
+            'status'
+        ]);
+
+        if (status !== null) {
+            updateData.status = String(status).trim();
+        }
+
+        const keyword = getValue([
+            'Từ khóa',
+            'Keyword',
+            'keyword'
+        ]);
+
+        if (keyword !== null) {
+
+            if (Array.isArray(keyword)) {
+                updateData.keyword = keyword;
+            } else {
+                updateData.keyword = String(keyword)
+                    .split(',')
+                    .map(item => item.trim())
+                    .filter(Boolean);
+            }
+        }
         try {
             const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
                 new: true,
@@ -739,5 +880,57 @@ export const searchProducts = handleAsyncError(async (req, res, next) => {
     res.status(200).json({
         success: true,
         products
+    });
+})
+
+
+export const importProductsPreCheck = handleAsyncError(async (req, res, next) => {
+    const { skus } = req.body;
+
+    if (!skus || !Array.isArray(skus) || skus.length === 0) {
+        return next(new HandleError("Danh sách SKU trống", 400));
+    }
+
+    const results = [];
+
+    for (const sku of skus) {
+        if (!sku || !String(sku).trim()) {
+            results.push({ sku: sku || '', exists: false });
+            continue;
+        }
+
+        const trimmedSku = String(sku).trim();
+        const existingProduct = await Product.findOne({
+            sku: { $regex: `^${trimmedSku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' }
+        }).select('_id name sku stock price');
+
+        if (existingProduct) {
+            results.push({
+                sku: trimmedSku,
+                name: existingProduct.name,
+                exists: true,
+                _id: existingProduct._id,
+                currentStock: existingProduct.stock,
+                currentPrice: existingProduct.price,
+                currentVibe: existingProduct.vibe || "N/A",
+                currentStyle: existingProduct.style || "N/A"
+            });
+        } else {
+            results.push({
+                sku: trimmedSku,
+                exists: false
+            });
+        }
+    }
+
+    const existCount = results.filter(r => r.exists).length;
+    const newCount = results.filter(r => !r.exists).length;
+
+    res.status(200).json({
+        success: true,
+        total: results.length,
+        existCount,
+        newCount,
+        results
     });
 })

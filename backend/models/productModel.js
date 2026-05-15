@@ -1,7 +1,14 @@
 import "./categoryModel.js";
 import mongoose from "mongoose";
 
-const productSchema = new mongoose.Schema({ // tạo schema cho sản phẩm
+const productSchema = new mongoose.Schema({
+    sku: { // mã sản phẩm duy nhất
+        type: String,
+        trim: true,
+        unique: true,
+        sparse: true, // cho phép các sản phẩm cũ chưa có SKU không bị báo lỗi trùng lặp null
+        maxLength: [50, "Mã SKU không được vượt quá 50 ký tự"]
+    }, // tạo schema cho sản phẩm
     name: {
         // tên sản phẩm
         type: String,
@@ -38,9 +45,8 @@ const productSchema = new mongoose.Schema({ // tạo schema cho sản phẩm
     category: {
         level1: { type: String, required: [true, "Vui lòng chọn danh mục cấp 1"] },
         level2: { type: String, required: [true, "Vui lòng chọn danh mục cấp 2"] },
-        level3: { type: String, required: [true, "Vui lòng chọn danh mục cấp 3"] }
     },
-    publisher: { // nhà xuất bản (nếu là sách)
+    publisher: { 
         type: String,
         default: ""
     },

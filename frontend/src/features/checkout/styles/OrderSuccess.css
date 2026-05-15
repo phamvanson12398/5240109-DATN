@@ -1,0 +1,192 @@
+/* ====== Animations (tách từ mẫu HTML) ====== */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ====== Layout ====== */
+.os-backdrop {
+  /* Fixed overlay - Phủ lên toàn bộ trang */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  /* Ưu tiên cao nhất */
+
+  background: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent backdrop */
+  padding: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  animation: fadeIn 0.3s ease-out;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  box-sizing: border-box;
+}
+
+.os-popup {
+  background: #ffffff;
+  /* surface_color */
+  border-radius: 16px;
+  max-width: 480px;
+  width: 100%;
+  padding: 48px 32px;
+  text-align: center;
+  position: relative;
+
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  animation: slideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Close button */
+.os-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  transition: all 0.2s;
+
+  color: #166534;
+  /* text_color */
+  opacity: 0.5;
+}
+
+.os-close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Checkmark */
+.os-checkwrap {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+
+  background: #86efac;
+  /* secondary_action_color */
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  animation: checkmark 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+.os-checkicon {
+  stroke: #22c55e;
+  /* primary_action_color */
+}
+
+/* Text */
+.os-title {
+  color: #166534;
+  font-size: 28px;
+  /* 16 * 1.75 */
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+}
+
+.os-message {
+  color: #166534;
+  opacity: 0.8;
+  font-size: 16px;
+  margin: 0 0 12px 0;
+  line-height: 1.6;
+}
+
+.os-orderid {
+  color: #166534;
+  opacity: 0.8;
+  font-size: 15px;
+  margin: 0 0 28px 0;
+  line-height: 1.6;
+}
+
+.os-spacer {
+  height: 16px;
+}
+
+/* Button */
+.os-btn {
+  background: #22c55e;
+  /* primary_action_color */
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+
+  padding: 14px 32px;
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+  width: 100%;
+
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.os-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+}
+
+.os-closed {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 14px;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}

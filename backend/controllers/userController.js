@@ -4,14 +4,15 @@ import Role from "../models/roleModel.js"
 import HandleError from "../utils/handleError.js"
 import { sendToken } from "../utils/jwtToken.js"
 import { sendEmail } from "../utils/sendEmail.js"
-import { v2 as cloudinary } from "cloudinary";
+import { getFrontendBaseUrl } from "../config/runtimeConfig.js"
 import crypto from "crypto";
+import { v2 as cloudinary } from "cloudinary";
 
 const getDefaultAvatar = () => {
-    const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, "");
+    const frontendUrl = getFrontendBaseUrl();
     return {
         public_id: "default-avatar",
-        url: frontendUrl ? `${frontendUrl}/images/profile.png` : "/images/profile.png"
+        url: `${frontendUrl}/images/profile.png`
     };
 };
 
@@ -45,31 +46,15 @@ export const registerUser = handleAsyncError(async (req, res, next) => {
     // Auto-assign the default "user" role
     const defaultRoleId = await getDefaultRoleId();
 
-    try {
-        const user = await User.create({
-            name,
-            email,
-            password,
-            avatar: avatarData,
-            role_id: defaultRoleId
-        });
+    const user = await User.create({
+        name,
+        email,
+        password,
+        avatar: avatarData,
+        role_id: defaultRoleId
+    })
 
-        // 👉 chỉ chạy khi create thành công
-        await sendEmail(
-            email,
-            "Thông báo tài khoản",
-            "Bạn đã đăng ký tài khoản thành công tại Sách ơi"
-        );
-
-        sendToken(user, 200, res)
-
-    } catch (error) {
-        console.log(error.message)
-        return res.status(500).json({
-            message: "Đăng ký thất bại",
-            error: error.message
-        });
-    }
+    sendToken(user, 200, res)
 })
 
 // Đăng Nhập 
@@ -127,8 +112,7 @@ export const requestPasswordReset = handleAsyncError(async (req, res, next) => {
         return next(new HandleError("không thể lưu mã thông báo đặt lại, vui lòng thử lại sau"), 500)
     }
 
-    // const resetPasswordURL = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
-    const resetPasswordURL = `http://localhost:8000/password/reset/${resetToken}`;
+    const resetPasswordURL = `${getFrontendBaseUrl()}/password/reset/${resetToken}`;
     const message = `Sử dụng liên kết sau để đặt lại mật khẩu của bạn: ${resetPasswordURL}.\n\nLinên kết sẽ hết hạn sau 30 phút.\n\nNếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua tin nhắn này.`
 
     try {
@@ -170,22 +154,11 @@ export const resetPassword = handleAsyncError(async (req, res, next) => {
     user.password = password
     user.resetPasswordToken = undefined
     user.resetPasswordExpire = undefined
-    try {
-        await user.save();
-
-        return res.status(200).json({
-            success: true,
-            message: "Đặt lại mật khẩu thành công"
-        });
-
-    } catch (error) {
-        console.error("Lỗi khi save user:", error.message);
-
-        return res.status(500).json({
-            success: false,
-            message: "Đặt lại mật khẩu thất bại"
-        });
-    }
+    await user.save()
+    res.status(200).json({
+        success: true,
+        message: "Đặt lại mật khẩu thành công"
+    })
 })
 
 // Hồ sơ người dùng (kèm thông tin Role)

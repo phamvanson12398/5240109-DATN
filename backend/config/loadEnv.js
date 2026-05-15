@@ -3,6 +3,7 @@ import fs from "fs";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import path from "path";
+import { log } from "console";
 
 let envLoaded = false;
 let envMetadata = {
@@ -70,6 +71,7 @@ export const loadEnvironment = () => {
     }
 
     envLoaded = true;
+    
 };
 
 export const getEnvironmentStatus = () => {

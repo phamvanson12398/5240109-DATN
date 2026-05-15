@@ -1,0 +1,405 @@
+:root {
+    --admin-bg: #f6f7f9;
+    --admin-surface: #ffffff;
+    --admin-text: #111827;
+    --admin-muted: #6b7280;
+    --admin-border: #e5e7eb;
+    --admin-accent: #e85d75;
+    --admin-primary: #e85d75;
+    --admin-accent-soft: #fff1f3;
+    --admin-card-bg: #ffffff;
+    --admin-text-secondary: #6b7280;
+    --admin-success: #16a34a;
+    --admin-warning: #f59e0b;
+    --admin-danger: #dc2626;
+    --admin-sidebar-width: 260px;
+    --admin-topbar-height: 76px;
+}
+
+.admin-shell {
+    min-height: 100vh;
+    background: var(--admin-bg);
+    color: var(--admin-text);
+    font-family: 'Inter', 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.admin-main-shell {
+    min-height: 100vh;
+    margin-left: var(--admin-sidebar-width);
+    padding: calc(var(--admin-topbar-height) + 28px) 32px 40px;
+}
+
+.admin-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 50;
+    width: var(--admin-sidebar-width);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 22px 16px;
+    background: var(--admin-surface);
+    border-right: 1px solid var(--admin-border);
+}
+
+.admin-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px 22px;
+    color: var(--admin-text);
+    text-decoration: none;
+}
+
+.admin-sidebar-logo {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    color: #ffffff;
+    background: var(--admin-accent);
+    border-radius: 12px;
+}
+
+.admin-sidebar-logo svg {
+    width: 22px;
+    height: 22px;
+}
+
+.admin-sidebar-brand strong,
+.admin-sidebar-brand small {
+    display: block;
+}
+
+.admin-sidebar-brand strong {
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+}
+
+.admin-sidebar-brand small {
+    margin-top: 2px;
+    color: var(--admin-muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.admin-sidebar-nav {
+    display: grid;
+    gap: 6px;
+    padding-top: 8px;
+}
+
+.admin-sidebar-link {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px;
+    color: #374151;
+    background: transparent;
+    border: 0;
+    border-left: 3px solid transparent;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.admin-sidebar-link:hover {
+    background: #f9fafb;
+    color: var(--admin-accent);
+}
+
+.admin-sidebar-link.active {
+    background: var(--admin-accent-soft);
+    border-left-color: var(--admin-accent);
+    color: var(--admin-accent);
+}
+
+.admin-sidebar-link.secondary {
+    color: var(--admin-muted);
+}
+
+.admin-sidebar-link.danger {
+    color: var(--admin-danger);
+}
+
+.admin-sidebar-icon {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    display: grid;
+    place-items: center;
+}
+
+.admin-sidebar-icon svg {
+    width: 21px;
+    height: 21px;
+}
+
+.admin-sidebar-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-sidebar-footer {
+    display: grid;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--admin-border);
+}
+
+.admin-sidebar-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    padding: 12px;
+    background: #f9fafb;
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+}
+
+.admin-sidebar-profile img,
+.admin-topbar-user img {
+    width: 38px;
+    height: 38px;
+    object-fit: cover;
+    border-radius: 999px;
+}
+
+.admin-sidebar-profile strong,
+.admin-sidebar-profile span,
+.admin-topbar-user strong,
+.admin-topbar-user span {
+    display: block;
+}
+
+.admin-sidebar-profile strong {
+    color: var(--admin-text);
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.25;
+}
+
+.admin-sidebar-profile span {
+    margin-top: 2px;
+    color: var(--admin-muted);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.admin-topbar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: var(--admin-sidebar-width);
+    z-index: 40;
+    height: var(--admin-topbar-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 0 32px;
+    background: rgba(255, 255, 255, 0.94);
+    border-bottom: 1px solid var(--admin-border);
+    backdrop-filter: blur(14px);
+}
+
+.admin-topbar-search {
+    width: min(520px, 100%);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    background: #f9fafb;
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    color: var(--admin-muted);
+}
+
+.admin-topbar-search svg {
+    width: 21px;
+    height: 21px;
+}
+
+.admin-topbar-search input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--admin-text);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.admin-topbar-search input::placeholder {
+    color: #9ca3af;
+}
+
+.admin-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-topbar-icon-button {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    color: #374151;
+    background: #ffffff;
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.admin-topbar-icon-button:hover {
+    color: var(--admin-accent);
+    background: var(--admin-accent-soft);
+}
+
+.admin-topbar-icon-button svg {
+    width: 22px;
+    height: 22px;
+}
+
+.admin-topbar-icon-button.has-dot::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 7px;
+    height: 7px;
+    background: var(--admin-accent);
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+}
+
+.admin-topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 4px;
+}
+
+.admin-topbar-user strong {
+    color: var(--admin-text);
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.admin-topbar-user span {
+    margin-top: 2px;
+    color: var(--admin-muted);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.loading-state {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 14px;
+    color: var(--admin-muted);
+}
+
+.loading-spinner {
+    width: 38px;
+    height: 38px;
+    border: 3px solid var(--admin-border);
+    border-top-color: var(--admin-accent);
+    border-radius: 999px;
+    animation: admin-layout-spin 0.8s linear infinite;
+}
+
+@keyframes admin-layout-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .admin-main-shell {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    :root {
+        --admin-sidebar-width: 88px;
+    }
+
+    .admin-sidebar {
+        padding: 18px 12px;
+    }
+
+    .admin-sidebar-brand {
+        justify-content: center;
+        padding: 4px 0 20px;
+    }
+
+    .admin-sidebar-brand span:last-child,
+    .admin-sidebar-label,
+    .admin-sidebar-profile div,
+    .admin-topbar-user div {
+        display: none;
+    }
+
+    .admin-sidebar-link {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .admin-sidebar-profile {
+        justify-content: center;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-sidebar {
+        display: none;
+    }
+
+    .admin-topbar {
+        left: 0;
+        padding: 0 16px;
+    }
+
+    .admin-topbar-search {
+        max-width: none;
+    }
+
+    .admin-topbar-icon-button {
+        display: none;
+    }
+
+    .admin-main-shell {
+        margin-left: 0;
+        padding: calc(var(--admin-topbar-height) + 20px) 16px 32px;
+    }
+}

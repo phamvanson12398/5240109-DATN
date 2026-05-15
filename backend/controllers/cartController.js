@@ -2,154 +2,183 @@ import Cart from "../models/cartModel.js";
 import CartItem from "../models/cartItemModel.js";
 import handleAsyncError from "../middleware/handleAsyncError.js";
 import HandleError from "../utils/handleError.js";
+import {
+  buildCartItemSnapshot,
+  revalidateCartForUser,
+} from "../services/flashSaleService.js";
 
-// Helper: Find or create a cart for the current user
 const findOrCreateCart = async (userId) => {
-    let cart = await Cart.findOne({ user_id: userId });
-    if (!cart) {
-        cart = await Cart.create({ user_id: userId });
-    }
-    return cart;
+  let cart = await Cart.findOne({ user_id: userId });
+  if (!cart) {
+    cart = await Cart.create({ user_id: userId });
+  }
+  return cart;
 };
 
-// Helper: Build the full cart response (cart + its items)
 const buildCartResponse = async (cart) => {
-    const items = await CartItem.find({ cart_id: cart._id }).populate("product_id", "name price images stock");
-    return { ...cart.toObject(), items };
+  const items = await CartItem.find({ cart_id: cart._id }).populate("product_id", "name price originalPrice images stock sold");
+  return { ...cart.toObject(), items };
 };
 
-// GET /api/v1/cart — Lấy giỏ hàng của người dùng hiện tại
-export const getCart = handleAsyncError(async (req, res, next) => {
-    const cart = await findOrCreateCart(req.user.id);
-    const cartWithItems = await buildCartResponse(cart);
+export const getCart = handleAsyncError(async (req, res) => {
+  const cart = await findOrCreateCart(req.user.id);
+  await revalidateCartForUser(req.user.id, { persist: true });
+  const cartWithItems = await buildCartResponse(cart);
 
-    res.status(200).json({
-        success: true,
-        cart: cartWithItems
-    });
+  res.status(200).json({
+    success: true,
+    cart: cartWithItems,
+  });
 });
 
-// POST /api/v1/cart/sync — Đồng bộ giỏ hàng từ LocalStorage khi đăng nhập
 export const syncCart = handleAsyncError(async (req, res, next) => {
-    const { items } = req.body;
+  const { items } = req.body;
+  const cart = await findOrCreateCart(req.user.id);
 
-    const cart = await findOrCreateCart(req.user.id);
+  if (items && Array.isArray(items) && items.length > 0) {
+    await CartItem.deleteMany({ cart_id: cart._id });
 
-    if (items && Array.isArray(items) && items.length > 0) {
-        // Delete old items and replace with synced items from client
-        await CartItem.deleteMany({ cart_id: cart._id });
+    for (const item of items) {
+      const productId = item.product_id || item.product;
+      const snapshot = await buildCartItemSnapshot({
+        productId,
+        userId: req.user.id,
+        quantity: item.quantity,
+        size: item.size || null,
+        color: item.color || null,
+      });
 
-        const cartItems = items.map(item => ({
-            cart_id: cart._id,
-            product_id: item.product_id || item.product,
-            name: item.name,
-            price: item.price,
-            image: item.image,
-            quantity: item.quantity,
-            size: item.size || null,
-            color: item.color || null,
-        }));
+      if (!snapshot.valid) {
+        return next(new HandleError(snapshot.message || "Cart item is no longer valid", 400));
+      }
 
-        await CartItem.insertMany(cartItems);
+      await CartItem.create({
+        cart_id: cart._id,
+        ...snapshot.cartItem,
+      });
     }
+  }
 
-    const cartWithItems = await buildCartResponse(cart);
-
-    res.status(200).json({
-        success: true,
-        cart: cartWithItems
-    });
+  const cartWithItems = await buildCartResponse(cart);
+  res.status(200).json({
+    success: true,
+    cart: cartWithItems,
+  });
 });
 
-// PUT /api/v1/cart — Thêm hoặc cập nhật số lượng một mặt hàng trong giỏ
 export const updateCartItem = handleAsyncError(async (req, res, next) => {
-    // Support both "product_id" (new) and "product" (legacy from frontend)
-    const product_id = req.body.product_id || req.body.product;
-    const { quantity, size, color, name, price, image } = req.body;
+  const productId = req.body.product_id || req.body.product;
+  const { quantity, size, color, isUpdate } = req.body;
 
-    if (!product_id || !quantity || !name || !price || !image) {
-        return next(new HandleError("Thiếu thông tin sản phẩm (product_id, quantity, name, price, image)", 400));
-    }
+  if (!productId || !quantity) {
+    return next(new HandleError("Missing product_id or quantity", 400));
+  }
 
-    const cart = await findOrCreateCart(req.user.id);
+  const cart = await findOrCreateCart(req.user.id);
+  const existingItem = await CartItem.findOne({
+    cart_id: cart._id,
+    product_id: productId,
+    size: size || null,
+    color: color || null,
+  });
 
-    // Find existing item by product + variant (size, color)
-    const existingItem = await CartItem.findOne({
-        cart_id: cart._id,
-        product_id,
-        size: size || null,
-        color: color || null,
-    });
+  const nextQuantity = existingItem && !isUpdate
+    ? Number(existingItem.quantity || 0) + Number(quantity || 0)
+    : Number(quantity || 0);
 
-    if (existingItem) {
-        // Update quantity of existing item
-        existingItem.quantity = quantity;
-        await existingItem.save();
-    } else {
-        // Create a new CartItem
-        await CartItem.create({
-            cart_id: cart._id,
-            product_id,
-            name,
-            price, // Snapshot price at the time of adding
-            image,
-            quantity,
-            size: size || null,
-            color: color || null,
-        });
-    }
+  const snapshot = await buildCartItemSnapshot({
+    productId,
+    userId: req.user.id,
+    quantity: nextQuantity,
+    size: size || null,
+    color: color || null,
+    strictFlashSaleItemId: existingItem?.pricingType === "flash_sale" ? existingItem.flashSaleItemId : null,
+  });
 
-    const cartWithItems = await buildCartResponse(cart);
+  if (!snapshot.valid) {
+    return next(new HandleError(snapshot.message || "Cart item is no longer valid", 400));
+  }
 
-    res.status(200).json({
-        success: true,
-        cart: cartWithItems
-    });
-});
-
-// DELETE /api/v1/cart/item/:productId — Xóa một mặt hàng cụ thể khỏi giỏ
-export const removeCartItem = handleAsyncError(async (req, res, next) => {
-    const { productId } = req.params;
-    const { size, color } = req.query; // Get variants from query string
-
-    const cart = await Cart.findOne({ user_id: req.user.id });
-
-    if (!cart) {
-        return next(new HandleError("Không tìm thấy giỏ hàng", 404));
-    }
-
-    // Standardize nulls for matching
-    const query = {
-        cart_id: cart._id,
-        product_id: productId
+  if (snapshot.cartItem.pricingType === "flash_sale" && snapshot.cartItem.flashSaleItemId) {
+    const siblingQuery = {
+      cart_id: cart._id,
+      flashSaleItemId: snapshot.cartItem.flashSaleItemId,
     };
+    if (existingItem?._id) siblingQuery._id = { $ne: existingItem._id };
 
-    if (size) query.size = size;
-    else query.size = null;
+    const siblingItems = await CartItem.find(siblingQuery);
+    const siblingQuantity = siblingItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+    const perUserLimit = Number(snapshot.pricing?.perUserLimit || 1);
+    const purchasedCount = Number(snapshot.pricing?.purchasedCount || 0);
 
-    if (color) query.color = color;
-    else query.color = null;
+    if (purchasedCount + siblingQuantity + nextQuantity > perUserLimit) {
+      return next(new HandleError(
+        `${snapshot.cartItem.name} vuot gioi han Flash Sale moi tai khoan`,
+        400
+      ));
+    }
+  }
 
-    await CartItem.findOneAndDelete(query);
-
-    const cartWithItems = await buildCartResponse(cart);
-
-    res.status(200).json({
-        success: true,
-        cart: cartWithItems
+  if (existingItem) {
+    existingItem.set(snapshot.cartItem);
+    await existingItem.save();
+  } else {
+    await CartItem.create({
+      cart_id: cart._id,
+      ...snapshot.cartItem,
     });
+  }
+
+  const cartWithItems = await buildCartResponse(cart);
+  res.status(200).json({
+    success: true,
+    cart: cartWithItems,
+  });
 });
 
-// DELETE /api/v1/cart/clear — Xóa toàn bộ giỏ hàng sau khi checkout
-export const clearCart = handleAsyncError(async (req, res, next) => {
-    const cart = await Cart.findOne({ user_id: req.user.id });
+export const revalidateCart = handleAsyncError(async (req, res) => {
+  const result = await revalidateCartForUser(req.user.id, { persist: true });
+  const cartWithItems = result.cart ? await buildCartResponse(result.cart) : null;
 
-    if (cart) {
-        await CartItem.deleteMany({ cart_id: cart._id });
-    }
+  res.status(200).json({
+    success: true,
+    valid: result.valid,
+    errors: result.errors,
+    cart: cartWithItems,
+  });
+});
 
-    res.status(200).json({
-        success: true,
-        message: "Giỏ hàng đã được làm trống"
-    });
+export const removeCartItem = handleAsyncError(async (req, res, next) => {
+  const { productId } = req.params;
+  const { size, color } = req.query;
+
+  const cart = await Cart.findOne({ user_id: req.user.id });
+  if (!cart) {
+    return next(new HandleError("Cart not found", 404));
+  }
+
+  await CartItem.findOneAndDelete({
+    cart_id: cart._id,
+    product_id: productId,
+    size: size || null,
+    color: color || null,
+  });
+
+  const cartWithItems = await buildCartResponse(cart);
+  res.status(200).json({
+    success: true,
+    cart: cartWithItems,
+  });
+});
+
+export const clearCart = handleAsyncError(async (req, res) => {
+  const cart = await Cart.findOne({ user_id: req.user.id });
+  if (cart) {
+    await CartItem.deleteMany({ cart_id: cart._id });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Cart cleared",
+  });
 });

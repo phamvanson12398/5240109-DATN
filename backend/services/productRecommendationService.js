@@ -4,7 +4,7 @@ import Product from '../models/productModel.js';
  * Product Recommendation Service (Level 1 - Rule Based)
  * Logic fallback: level3 -> level2 -> level1 -> brand -> sold -> trending -> createdAt
  */
-export const getRelatedProductsLevel1 = async ({ brand, category, limit = 8 }) => {
+export const getRelatedProductsLevel1 = async ({ brand, category, limit = 8, excludeProductId } = {}) => {
     const results = [];
     const addedIds = new Set();
 
@@ -24,6 +24,10 @@ export const getRelatedProductsLevel1 = async ({ brand, category, limit = 8 }) =
         status: "available",
         stock: { $gt: 0 }
     };
+
+    if (excludeProductId) {
+        baseFilter._id = { $ne: excludeProductId };
+    }
 
     // 1. Cùng category.level3
     if (results.length < limit && category?.level3) {

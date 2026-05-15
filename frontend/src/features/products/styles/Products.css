@@ -1,0 +1,178 @@
+/* Premium fashion product listing */
+
+.products-page-container {
+  width: 100%;
+  background: #fafafa;
+}
+
+.sidebar-sticky {
+  position: sticky;
+  top: 112px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  padding-bottom: 2rem;
+  scrollbar-gutter: stable;
+}
+
+.sidebar-sticky::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-sticky::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-sticky::-webkit-scrollbar-thumb {
+  background-color: #e5e7eb;
+  border-radius: 999px;
+}
+
+.product-filter-panel {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 1.25rem;
+  box-shadow: 0 16px 40px rgba(17, 24, 39, 0.05);
+}
+
+.editorial-card {
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.editorial-card:hover {
+  transform: translateY(-3px);
+}
+
+.editorial-image-container {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #f3f4f6;
+}
+
+.editorial-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 500ms ease;
+}
+
+.editorial-card:hover .editorial-image {
+  transform: scale(1.04);
+}
+
+.filter-checkbox:checked {
+  background-color: #e85d75;
+  border-color: #e85d75;
+}
+
+.product-pagination-container {
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid #e5e7eb;
+  padding: 2.5rem 0 1rem;
+}
+
+.product-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+}
+
+.pagination-btn,
+.pagination-ellipsis {
+  display: flex;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.pagination-btn {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.pagination-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pagination-btn:hover:not(:disabled):not(.active) {
+  border-color: #f9a8b6;
+  background: #fff1f3;
+  color: #be123c;
+  box-shadow: 0 10px 22px rgba(232, 93, 117, 0.14);
+  transform: translateY(-1px);
+}
+
+.pagination-btn.active {
+  border-color: #e85d75;
+  background: #e85d75;
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(232, 93, 117, 0.28);
+}
+
+.pagination-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  box-shadow: none;
+  transform: none;
+}
+
+.pagination-ellipsis {
+  color: #9ca3af;
+  user-select: none;
+}
+
+.toolbar-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+}
+
+@media (max-width: 640px) {
+  .product-pagination-container {
+    padding: 2rem 0 0.5rem;
+  }
+
+  .product-pagination {
+    gap: 0.25rem;
+  }
+
+  .pagination-btn,
+  .pagination-ellipsis {
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 0.8125rem;
+  }
+
+  .pagination-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}

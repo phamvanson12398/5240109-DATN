@@ -21,7 +21,7 @@ class APIFunctionality {
         this.query = this.query.find({ ...keyword });
         return this; // trả về this để chain tiếp
     }
-   
+
     static CATEGORY_MAP = {
     };
 
@@ -32,16 +32,30 @@ class APIFunctionality {
         const removeFields = ["keyword", "page", "limit", "sort"];
         removeFields.forEach(key => delete queryCopy[key]);
 
-       
+
         let categoryQuery = {};
         if (queryCopy.category) {
             const mapped = APIFunctionality.CATEGORY_MAP[queryCopy.category];
+
             if (mapped) {
                 categoryQuery = { ...mapped };
             } else {
-                // Fallback: tìm kiếm gần đúng trên level3
+                // Fallback: tìm kiếm gần đúng trên cả level1 và level2
                 categoryQuery = {
-                    'category.level3': { $regex: queryCopy.category, $options: 'i' }
+                    $or: [
+                        {
+                            'category.level1': {
+                                $regex: queryCopy.category,
+                                $options: 'i'
+                            }
+                        },
+                        {
+                            'category.level2': {
+                                $regex: queryCopy.category,
+                                $options: 'i'
+                            }
+                        }
+                    ]
                 };
             }
             delete queryCopy.category;
@@ -93,7 +107,7 @@ class APIFunctionality {
         return this;
     }
 
-  
+
     pagination(resultPerPage) {
         const currentPage = Number(this.queryStr.page) || 1;
         const skip = resultPerPage * (currentPage - 1);

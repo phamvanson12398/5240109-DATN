@@ -1,0 +1,681 @@
+/* MyOrders.css - Modern SaaS Style (Reference-matched) */
+
+/* ===== Google Fonts Import ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ===== Animations ===== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== Page Container ===== */
+.my-orders-page {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f9fafb;
+    min-height: calc(100vh - 200px);
+    padding: 24px;
+    color: #0f172a;
+}
+
+/* ===== 2-Column Layout ===== */
+.orders-page-layout {
+    display: flex;
+    gap: 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.orders-main-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== Header Section ===== */
+.orders-header-section {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 12px 12px 0 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin-bottom: 0;
+}
+
+.orders-header-top {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px 0;
+}
+
+.orders-page-title {
+    color: #1e293b;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    white-space: nowrap;
+}
+
+/* ===== Search ===== */
+.orders-search-wrapper {
+    position: relative;
+    width: 320px;
+    max-width: 100%;
+}
+
+.search-icon-box {
+    position: absolute;
+    inset: 0 auto 0 0;
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    pointer-events: none;
+}
+
+.search-icon {
+    width: 18px;
+    height: 18px;
+    color: #94a3b8;
+}
+
+.search-input {
+    display: block;
+    width: 100%;
+    padding: 9px 14px 9px 38px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #f8fafc;
+    color: #1e293b;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    background: #fff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-input::placeholder {
+    color: #94a3b8;
+}
+
+/* ===== Tabs ===== */
+.orders-tab-bar {
+    display: flex;
+    overflow-x: auto;
+    gap: 32px;
+    padding: 0 24px;
+    margin-top: 20px;
+    border-bottom: 1px solid #f1f5f9;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.orders-tab-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-item {
+    white-space: nowrap;
+    padding: 12px 0;
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.tab-item:hover {
+    color: #334155;
+}
+
+.tab-item.active {
+    border-bottom-color: #2563eb;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+/* ===== Error ===== */
+.orders-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-size: 14px;
+}
+
+/* ===== Scrollable Body ===== */
+.orders-body {
+    padding: 24px 0;
+    overflow-y: auto;
+}
+
+/* ===== Loading ===== */
+.orders-loading {
+    text-align: center;
+    padding: 80px 24px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+}
+
+.orders-loading p {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* ===== Empty State ===== */
+.orders-empty {
+    text-align: center;
+    padding: 64px 24px;
+    background: #fff;
+    border-radius: 12px;
+    border: 2px dashed #cbd5e1;
+}
+
+.empty-icon-circle {
+    width: 80px;
+    height: 80px;
+    background: #f1f5f9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+}
+
+.empty-icon-svg {
+    width: 40px;
+    height: 40px;
+    color: #94a3b8;
+}
+
+.empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 4px;
+}
+
+.empty-desc {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 24px;
+}
+
+.btn-shop-now {
+    display: inline-block;
+    padding: 12px 32px;
+    background: #0f172a;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-shop-now:hover {
+    background: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.15);
+}
+
+.btn-shop-now:active {
+    transform: scale(0.97);
+}
+
+/* ===== Orders List ===== */
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ===== Order Card ===== */
+.order-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    animation: fadeInUp 0.35s ease-out;
+}
+
+/* Card Header */
+.order-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.order-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.shop-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.header-divider {
+    color: #cbd5e1;
+    font-size: 14px;
+}
+
+.order-id {
+    font-size: 12px;
+    color: #94a3b8;
+    font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.status-shipping {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.status-delivered {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.status-cancelled {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* ===== Product List ===== */
+.order-products {
+    padding: 0;
+}
+
+.product-item {
+    display: flex;
+    gap: 16px;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f8fafc;
+    align-items: flex-start;
+}
+
+.product-item:last-child {
+    border-bottom: none;
+}
+
+.product-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #f1f5f9;
+    flex-shrink: 0;
+    background: #f8fafc;
+}
+
+.product-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.product-name {
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-meta {
+    color: #64748b;
+    font-size: 13px;
+    margin: 4px 0 0;
+}
+
+.product-price-inline {
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 8px 0 0;
+}
+
+/* ===== Order Footer ===== */
+.order-card-footer {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 24px;
+    background: rgba(248, 250, 252, 0.5);
+    border-top: 1px solid #f1f5f9;
+    gap: 12px;
+}
+
+@media (min-width: 769px) {
+    .order-card-footer {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+}
+
+.footer-date {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.date-value {
+    font-weight: 500;
+    color: #334155;
+}
+
+.footer-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.total-block {
+    text-align: right;
+}
+
+.total-label {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.total-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2563eb;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* ===== Buttons ===== */
+.btn-detail {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 16px;
+    background: #fff;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.btn-detail:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.btn-review {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    background: #fffbeb;
+    color: #b45309;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-review:hover {
+    background: #fef3c7;
+}
+
+.btn-review-icon {
+    font-size: 16px;
+}
+
+.btn-rebuy {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 20px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+}
+
+.btn-rebuy:hover {
+    background: #1d4ed8;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+}
+
+.btn-cancel-order {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 16px;
+    background: #fff;
+    color: #ef4444;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    border: 1px solid #fee2e2;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-cancel-order:hover:not(:disabled) {
+    background: #fef2f2;
+    border-color: #fca5a5;
+}
+
+.btn-cancel-order:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+    .orders-page-layout {
+        flex-direction: column;
+    }
+
+    .my-orders-page {
+        padding: 90px 16px 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .my-orders-page {
+        padding: 80px 12px 16px;
+    }
+
+    .orders-header-top {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px 16px 0;
+    }
+
+    .orders-search-wrapper {
+        width: 100%;
+    }
+
+    .orders-tab-bar {
+        padding: 0 16px;
+        gap: 24px;
+        margin-top: 16px;
+    }
+
+    .tab-item {
+        padding: 10px 0;
+        font-size: 13px;
+    }
+
+    .order-card-header {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .product-item {
+        padding: 16px;
+    }
+
+    .product-image {
+        width: 68px;
+        height: 68px;
+    }
+
+    .order-card-footer {
+        padding: 12px 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .footer-actions-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .total-block {
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .total-price {
+        font-size: 18px;
+    }
+
+    .action-buttons {
+        flex-wrap: wrap;
+    }
+
+    .btn-detail,
+    .btn-review,
+    .btn-rebuy {
+        flex: 1;
+        min-width: 100px;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .orders-body {
+        padding: 16px 0;
+    }
+
+    .orders-list {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .order-header-left {
+        width: 100%;
+    }
+
+    .shop-name {
+        font-size: 13px;
+    }
+
+    .product-name {
+        font-size: 13px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .btn-detail,
+    .btn-review,
+    .btn-rebuy {
+        width: 100%;
+    }
+}

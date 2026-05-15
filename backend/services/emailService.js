@@ -1,12 +1,17 @@
 import nodemailer from 'nodemailer';
-
+import { getFrontendBaseUrl } from '../config/runtimeConfig.js';
+import sendEmail from '../utils/sendEmail.js';
+/**
+ * Sách Ơi Email Service (v2.0)
+ * Chức năng: Gửi Email thông báo trạng thái đơn hàng với Template HTML chuyên nghiệp.
+ */
 
 const transporter = nodemailer.createTransport({
   service: process.env.SMTP_SERVICE || 'gmail',
   auth: {
     user: process.env.SMTP_MAIL,
-    pass: process.env.SMTP_PASSWORD,
-  },
+    pass: process.env.SMTP_PASSWORD
+  }
 });
 
 // Hàm tạo Table sản phẩm cho Email
@@ -49,7 +54,7 @@ const emailLayout = (content, order) => `
 <body>
     <div class="container">
         <div class="header">
-            <h1>Sách ơi</h1>
+            <h1>SÁCH ƠI</h1>
         </div>
         <div class="content">
             ${content}
@@ -72,11 +77,11 @@ const emailLayout = (content, order) => `
                 </tfoot>
             </table>
             <center>
-                <a href="${process.env.FRONTEND_URL}/order/${order._id}" class="btn">Xem chi tiết đơn hàng</a>
+                <a href="${getFrontendBaseUrl()}/order/${order._id}" class="btn">Xem chi tiết đơn hàng</a>
             </center>
         </div>
         <div class="footer">
-            <p>© 2026 Sách ơi - Tri thức & Phát triển bản thân</p>
+            <p>© 2026 Sách Ơi - Không gian dành cho những tâm hồn yêu sách</p>
             <p>Địa chỉ: Đà Nẵng, Việt Nam | Hotline: 09xx xxx xxx</p>
         </div>
     </div>
@@ -88,8 +93,8 @@ const emailLayout = (content, order) => `
 const getConfirmationContent = (order) => `
     <div class="status-badge" style="background-color: #ecfdf5; color: #059669;">Đã xác nhận</div>
     <p>Chào <strong>${order.shippingInfo.name}</strong>,</p>
-    <p>Cảm ơn bạn đã tin tưởng Shop! Đơn hàng số <strong>#${order._id.toString().slice(-6).toUpperCase()}</strong> của bạn đã được chúng tôi xác nhận.</p>
-    <p>Đội ngũ của Sách ơi đang chuẩn bị đóng gói sản phẩm để gửi tới bạn sớm nhất có thể.</p>
+    <p>Cảm ơn bạn đã tin tưởng Sách Ơi! Đơn hàng số <strong>#${order._id.toString().slice(-6).toUpperCase()}</strong> của bạn đã được chúng tôi xác nhận.</p>
+    <p>Đội ngũ của Sách Ơi đang chuẩn bị đóng gói sản phẩm để gửi tới bạn sớm nhất có thể.</p>
 `;
 
 // 2. Template Đang giao hàng
@@ -150,17 +155,29 @@ export const sendStatusEmail = async (order, status) => {
 
     const html = emailLayout(content, order);
 
+    // Xác định email nhận thông báo (Ưu tiên User Email -> Shipping Email)
+    const recipientEmail = order.user_id?.email || order.shippingInfo?.email;
+
+    if (!recipientEmail) {
+      console.warn(`[Email Service Warning]: Không có địa chỉ email để gửi thông báo cho đơn hàng ${order._id}.`);
+      return;
+    }
+
     const mailOptions = {
-      from: `"Sách ơi" <${process.env.SMTP_MAIL}>`,
-      to: order.user_id.email || order.shippingInfo.email, // fallback if user email not populated
+      from: `"Sách Ơi" <${process.env.SMTP_MAIL}>`,
+      to: recipientEmail,
       subject: subject,
       html: html,
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendEmail(recipientEmail,subject,html);
     console.log(`[Email Service]: Đã gửi email thông báo trạng thái "${status}" thành công cho khách hàng.`);
   } catch (error) {
-    console.error(`[Email Service Error]: Không thể gửi email cho đơn hàng ${order._id}. Lỗi:`, error.message);
+    console.error(`[Email Service Error]: Không thể gửi email cho đơn hàng ${order._id}. Lỗi:`, error);
     // Không ném lỗi ra ngoài để luồng cập nhật đơn hàng không bị gián đoạn
   }
 };
+
+
+
+

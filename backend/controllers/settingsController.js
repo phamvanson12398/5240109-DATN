@@ -1,4 +1,4 @@
-import Settings from '../models/settingModel.js';
+import Settings from '../models/settingsModel.js';
 import handleAsyncError from '../middleware/handleAsyncError.js';
 import HandleError from '../utils/handleError.js';
 
