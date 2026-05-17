@@ -28,46 +28,46 @@ router.route("/products/:id").get(getSingleProduct);
 // ======================= ADMIN ROUTES =======================
 router
   .route("/admin/products")
-  .get(verifyUserAuth, roleBasedAccess("admin"), getAdminProducts);
+  .get(verifyUserAuth, roleBasedAccess("admin","staff"), getAdminProducts);
 
 
 router
   .route("/admin/products/create")
-  .post(verifyUserAuth, roleBasedAccess("admin"), createProducts);
+  .post(verifyUserAuth, roleBasedAccess("admin","staff"), createProducts);
 
 // Import sản phẩm hàng loạt từ Excel/CSV
 router
   .route("/admin/products/import")
-  .post(verifyUserAuth, roleBasedAccess("admin"), importProducts);
+  .post(verifyUserAuth, roleBasedAccess("admin","staff"), importProducts);
 
   router
   .route("/admin/products/import-precheck")
-  .post(verifyUserAuth, roleBasedAccess("admin"), importProductsPreCheck);
+  .post(verifyUserAuth, roleBasedAccess("admin","staff"), importProductsPreCheck);
 
 
 // Cập nhật sản phẩm hàng loạt từ Excel/CSV
 router
   .route("/admin/products/update-bulk")
-  .put(verifyUserAuth, roleBasedAccess("admin"), updateProductsBulk);
+  .put(verifyUserAuth, roleBasedAccess("admin","staff"), updateProductsBulk);
 
 // Import tồn kho hàng loạt
 router
   .route("/admin/products/import-stock")
-  .put(verifyUserAuth, roleBasedAccess("admin"), importStock);
+  .put(verifyUserAuth, roleBasedAccess("admin","staff"), importStock);
 
 // Tìm kiếm sản phẩm theo tên
 router
   .route("/admin/products/search")
-  .get(verifyUserAuth, roleBasedAccess("admin"), searchProducts);
+  .get(verifyUserAuth, roleBasedAccess("admin","staff"), searchProducts);
 
 // Cập nhật tồn kho 1 sản phẩm
 router
   .route("/admin/products/:id/stock")
-  .put(verifyUserAuth, roleBasedAccess("admin"), updateStock);
+  .put(verifyUserAuth, roleBasedAccess("admin","staff"), updateStock);
 
 router
   .route("/admin/products/:id")
-  .put(verifyUserAuth, roleBasedAccess("admin"), updateProduct)
+  .put(verifyUserAuth, roleBasedAccess("admin","staff"), updateProduct)
   .delete(verifyUserAuth, roleBasedAccess("admin"), deteteProduct);
 
 // ======================= REVIEWS =======================

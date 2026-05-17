@@ -66,7 +66,7 @@ function DashboardView() {
         return <Navigate to="/login" replace />;
     }
 
-    if (user && userRole !== 'admin') {
+    if (user && userRole !== 'admin' && userRole !== 'staff' ) {
         toast.error('Bạn không có quyền truy cập trang này');
         return <Navigate to="/" replace />;
     }

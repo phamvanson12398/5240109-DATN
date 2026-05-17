@@ -73,7 +73,7 @@ function Navbar() {
     
     { name: 'SẢN PHẨM', path: '/products' },
     { name: 'SÁCH VIỆT NAM', path: '/products?category=sach_viet_nam', hasDropdown: true },
-    { name: 'FOREGIN BOOKS', path: '/products?category=foregin_book' },
+    { name: 'FOREGIN BOOKS', path: '/products?category=foreign_books' },
   ];
 
   return (
@@ -210,7 +210,7 @@ function Navbar() {
                               </div>
                             </div>
                             
-                            {(user?.role === 'admin' || user?.role_id?.name === 'admin') && (
+                            {(user?.role === 'admin' || user?.role_id?.name === 'admin' || user?.role === 'staff' || user?.role_id?.name === 'staff') && (
                               <Link 
                                 to="/admin/dashboard" 
                                 className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-accent bg-accent/5 hover:bg-accent/10 rounded-xl transition-all mb-1"

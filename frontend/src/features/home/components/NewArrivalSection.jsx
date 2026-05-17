@@ -65,7 +65,7 @@ function NewArrivalSection({ products = [], loading }) {
                 </div>
                 
                 <div className="px-2">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">MỚI VỀ</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">Mới XB</p>
                   <h3 className="text-[17px] font-bold text-primary mb-3 leading-tight group-hover:text-accent transition-colors line-clamp-2">
                     {product.name}
                   </h3>

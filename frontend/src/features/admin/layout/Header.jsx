@@ -7,7 +7,7 @@ import { selectAdminGlobalSearchQuery } from '@/features/admin/state/adminSelect
 
 const getRoleLabel = (role) => {
     if (role === 'admin') return 'Quản trị viên';
-    if (role === 'manager') return 'Quản lý';
+    if (role === 'staff') return 'Nhân viên';
     if (role === 'user') return 'Người dùng';
     return role || 'Quản lý';
 };

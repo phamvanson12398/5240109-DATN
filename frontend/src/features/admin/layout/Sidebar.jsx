@@ -1,5 +1,5 @@
 import { NavLink, Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
@@ -23,7 +23,8 @@ const navItems = [
 export default function Sidebar({ user }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
+    const adminOnlyItems = ["Tổng quan", "Cài đặt", "Người dùng"];
+    // const { isAuthenticated, user_id } = useSelector((state) => state.user_id);
     const handleLogout = async () => {
         await dispatch(logout());
         navigate('/login');
@@ -36,11 +37,11 @@ export default function Sidebar({ user }) {
                     <HomeOutlinedIcon />
                 </span>
                 <span>
-                    <strong>SACH ƠI</strong>
+                    <strong>SÁCH ƠI</strong>
                 </span>
             </Link>
 
-            <nav className="admin-sidebar-nav">
+            {/* <nav className="admin-sidebar-nav">
                 {navItems.map((item) => (
                     <NavLink
                         key={item.name}
@@ -51,6 +52,32 @@ export default function Sidebar({ user }) {
                         <span className="admin-sidebar-label">{item.name}</span>
                     </NavLink>
                 ))}
+            </nav> */}
+
+
+
+            <nav className="admin-sidebar-nav">
+                {navItems
+                    .filter((item) => {
+                        // Chỉ admin mới được thấy các item này
+                        if (adminOnlyItems.includes(item.name)) {
+                            return user?.role === "admin";
+                        }
+
+                        return true;
+                    })
+                    .map((item) => (
+                        <NavLink
+                            key={item.name}
+                            to={item.path}
+                            className={({ isActive }) =>
+                                `admin-sidebar-link ${isActive ? 'active' : ''}`
+                            }
+                        >
+                            <span className="admin-sidebar-icon">{item.icon}</span>
+                            <span className="admin-sidebar-label">{item.name}</span>
+                        </NavLink>
+                    ))}
             </nav>
 
             <div className="admin-sidebar-footer">
@@ -71,7 +98,14 @@ export default function Sidebar({ user }) {
                     />
                     <div>
                         <strong>{user?.name || 'Quản trị viên'}</strong>
-                        <span>{(user?.role_id?.name || user?.role) === 'admin' ? 'Quản trị viên' : 'Nhân viên'}</span>
+
+                        <span>
+                            {user.role === 'admin'
+                                ? 'Quản trị viên'
+                                : user.role === 'staff'
+                                    ? 'Nhân viên'
+                                    : 'Người dùng'}
+                        </span>
                     </div>
                 </div>
             </div>

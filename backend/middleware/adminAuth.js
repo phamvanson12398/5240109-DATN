@@ -41,7 +41,7 @@ export const isAuthenticatedAdmin = asyncErrorHandler(async (req, res, next) => 
     const roleName = newRole || legacyRole;
     
     // Strict Admin Check
-    if (roleName !== "admin") {
+    if (roleName !== "admin" && roleName !== "staff" ) {
         return next(new HandleError("Bạn không có quyền truy cập trang này", 403));
     }
 

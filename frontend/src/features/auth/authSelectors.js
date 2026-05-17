@@ -13,5 +13,8 @@ export const selectUserRole = (state) => {
   return user?.role_id?.name || user?.role || null;
 };
 
+// export const selectCanAccessAdmin = (state) =>
+//   selectIsAuthenticated(state) && selectUserRole(state) === "admin" || selectUserRole(state) === "staff";
 export const selectCanAccessAdmin = (state) =>
-  selectIsAuthenticated(state) && selectUserRole(state) === "admin";
+  selectIsAuthenticated(state) &&
+  ["admin", "staff"].includes(selectUserRole(state));

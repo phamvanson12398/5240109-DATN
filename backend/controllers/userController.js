@@ -7,6 +7,7 @@ import { sendEmail } from "../utils/sendEmail.js"
 import { getFrontendBaseUrl } from "../config/runtimeConfig.js"
 import crypto from "crypto";
 import { v2 as cloudinary } from "cloudinary";
+import { log } from "console"
 
 const getDefaultAvatar = () => {
     const frontendUrl = getFrontendBaseUrl();
@@ -242,9 +243,10 @@ export const getSingleUser = handleAsyncError(async (req, res, next) => {
 
 // Admin - Thay đổi vai trò user (nhận role_id hoặc tên role)
 export const updateUserRole = handleAsyncError(async (req, res, next) => {
-    const { role_id, role: roleName } = req.body
-
-    let newRoleId = role_id;
+    const { role, role: roleName } = req.body
+    console.log(role);
+    
+    let newRoleId = role;
 
     // Support updating by role name string for backward compatibility
     if (!newRoleId && roleName) {
@@ -255,14 +257,16 @@ export const updateUserRole = handleAsyncError(async (req, res, next) => {
         newRoleId = roleDoc._id;
     }
 
-    const user = await User.findByIdAndUpdate(req.params.id, { role_id: newRoleId }, {
+    const user = await User.findByIdAndUpdate(req.params.id, { role: newRoleId }, {
         new: true,
         runValidators: true
-    }).populate("role_id", "name")
+    }).populate("role", "name")
 
     if (!user) {
         return next(new HandleError("Người dùng không tồn tại", 400))
     }
+    console.log(user);
+    
     res.status(200).json({
         success: true,
         user

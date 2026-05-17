@@ -201,7 +201,7 @@ const deleteVoucher = asyncErrorHandler(async (req, res, next) => {
 
 // ROUTES DEFINITION
 router.route('/apply').post(verifyUserAuth, applyVoucherPreview);
-
+router.route('/all').get( getAllVouchers);
 // Admin Routes
 router.route('/admin').get(isAuthenticatedAdmin, getAllVouchers);
 router.route('/admin/new').post(isAuthenticatedAdmin, createVoucher);

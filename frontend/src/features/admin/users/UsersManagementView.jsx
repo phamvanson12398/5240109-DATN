@@ -111,6 +111,7 @@ function UsersManagementView() {
   const activeUsers = users?.filter((user) => user.isActive !== false).length || 0;
   const lockedUsers = users?.filter((user) => user.isActive === false).length || 0;
   const adminUsers = users?.filter((user) => getUserRole(user) === 'admin').length || 0;
+  const staffUsers = users?.filter((user) => getUserRole(user) === 'staff').length || 0;
 
   const statsCards = [
     {
@@ -134,6 +135,12 @@ function UsersManagementView() {
     {
       label: 'Quản trị viên',
       value: adminUsers,
+      icon: <AdminPanelSettingsOutlinedIcon />,
+      tone: 'info',
+    },
+    {
+      label: 'Nhân viên',
+      value: staffUsers,
       icon: <AdminPanelSettingsOutlinedIcon />,
       tone: 'info',
     },
@@ -265,6 +272,7 @@ function UsersManagementView() {
                           onChange={(e) => handleRoleChange(user._id, e.target.value)}
                         >
                           <option value="user">Người dùng</option>
+                          <option value="staff">Nhân viên</option>
                           <option value="admin">Quản trị viên</option>
                         </select>
                       </td>
