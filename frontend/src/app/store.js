@@ -7,7 +7,7 @@ import addressReducer from '@/features/address/addressSlice';
 import adminReducer from '@/features/admin/state/adminSlice';
 import voucherReducer from '@/features/vouchers/voucherSlice';
 import notificationReducer from '@/features/notifications/notificationSlice';
-
+import categoryReducer from '@/features/categorys/categorySlice';
 
 export const store = configureStore({
     reducer: {
@@ -19,5 +19,6 @@ export const store = configureStore({
         admin: adminReducer,
         voucher: voucherReducer,
         notification: notificationReducer,
+        category: categoryReducer
     }
 })

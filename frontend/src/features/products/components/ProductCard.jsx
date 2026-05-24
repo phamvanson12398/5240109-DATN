@@ -53,7 +53,7 @@ function ProductCard({ product }) {
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-3">
             <span className="min-w-0 truncate text-[11px] font-medium uppercase tracking-[0.14em] text-[#6B7280]">
-              {product.brand || "Sách Ơi"}
+              {product.brand || "GÓC SÁCH"}
             </span>
 
             {ratingValue !== null && !Number.isNaN(ratingValue) && (

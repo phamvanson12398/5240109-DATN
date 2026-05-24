@@ -24,6 +24,7 @@ function ProductFormModal({ product, onClose, initialData }) {
         categoryLevel2: "",
 
         // sách
+        author:"",
         publisher: "",
         publishYear: "",
         page: "",
@@ -36,7 +37,7 @@ function ProductFormModal({ product, onClose, initialData }) {
         // trạng thái
         status: "available",
 
-        keyword: [],
+        keyword: '',
     });
 
     const [imagesPreview, setImagesPreview] = useState([]);
@@ -60,6 +61,7 @@ function ProductFormModal({ product, onClose, initialData }) {
                 categoryLevel2: product.category?.level2 || "",
 
                 // Thông tin sách
+                author: product.author || "",
                 publisher: product.publisher || "",
                 publishYear: product.publishYear || "",
                 page: product.page || "",
@@ -235,6 +237,7 @@ function ProductFormModal({ product, onClose, initialData }) {
 
         // Thông tin sách
         myForm.set("publisher", formData.publisher || "");
+        myForm.set("author", formData.author || "");
         myForm.set("publishYear", formData.publishYear || "");
         myForm.set("page", formData.page || "");
         myForm.set("language", formData.language || "Tiếng Việt");
@@ -245,12 +248,8 @@ function ProductFormModal({ product, onClose, initialData }) {
         // Optional
         myForm.set("level", formData.level || "");
 
-        if (Array.isArray(formData.keyword)) {
-            formData.keyword.forEach((tag) => {
-                myForm.append("keyword", tag);
-            });
-        }
-
+         myForm.set("keyword", formData.keyword || "");
+       
         // Append new images
         formData.images.forEach((image) => {
             myForm.append("images", image);
@@ -455,9 +454,9 @@ function ProductFormModal({ product, onClose, initialData }) {
                                         <label className="form-label">Nhà xuất bản</label>
                                         <input
                                             type="text"
-                                            name="brand"
+                                            name="publisher"
                                             className="form-input"
-                                            value={formData.brand}
+                                            value={formData.publisher}
                                             onChange={handleChange}
                                             placeholder="VD: Nam Cao, Tố Hữu..."
                                         />
@@ -466,15 +465,15 @@ function ProductFormModal({ product, onClose, initialData }) {
                                         <label className="form-label">Tác giả</label>
                                         <input
                                             type="text"
-                                            name="material"
+                                            name="author"
                                             className="form-input"
-                                            value={formData.material}
+                                            value={formData.author}
                                             onChange={handleChange}
-                                            placeholder="VD: Anh Son..."
+                                            placeholder="VD: Tố Hữu..."
                                         />
                                     </div>
 
-                                    {/* Sizes */}
+                                    {/*  */}
                                     <div className="form-group">
                                         <label className="form-label">Số trang</label>
 
@@ -485,6 +484,18 @@ function ProductFormModal({ product, onClose, initialData }) {
                                             value={formData.page}
                                             onChange={handleChange}
                                             placeholder="VD: 320"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Năm xuất bản</label>
+
+                                        <input
+                                            type="number"
+                                            name="publishYear"
+                                            className="form-input"
+                                            value={formData.publishYear}
+                                            onChange={handleChange}
+                                            placeholder="VD: 2000"
                                         />
                                     </div>
 
@@ -513,9 +524,9 @@ function ProductFormModal({ product, onClose, initialData }) {
                                         <div className="form-group">
                                             <label className="form-label">Từ khóa</label>
                                             <select
-                                                name="style"
+                                                name="keyword"
                                                 className="form-select"
-                                                value={formData.style}
+                                                value={formData.keyword}
                                                 onChange={handleChange}
                                             >
                                                 <option value="">Chọn Từ khóa</option>

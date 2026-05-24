@@ -12,7 +12,7 @@ const BANNERS = [
     title: "KHÁM PHÁ SÁCH HAY",
     year: "2026",
     description:
-      "Khám phá thế giới tri thức hiện đại, tinh tế và truyền cảm hứng cùng Sách Ơi.",
+      "Khám phá thế giới tri thức hiện đại, tinh tế và truyền cảm hứng cùng GÓC SÁCH.",
   },
   {
     id: 2,

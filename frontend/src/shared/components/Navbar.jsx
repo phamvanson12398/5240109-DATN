@@ -369,7 +369,7 @@ function Navbar() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-black text-primary truncate uppercase tracking-wider">{user?.name}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Thành viên Sách Ơi</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Thành viên GÓC SÁCH</p>
                       </div>
                     </div>
                     {(user?.role === 'admin' || user?.role_id?.name === 'admin') && (

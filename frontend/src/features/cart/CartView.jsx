@@ -41,7 +41,7 @@ function CartView() {
   return (
     <div className="cart-page">
       <Navbar />
-      <PageTitle title="Giỏ Hàng | Sách Ơi" />
+      <PageTitle title="Giỏ Hàng | GÓC SÁCH" />
 
       <main className="cart-container">
         {cartItems.length === 0 ? (

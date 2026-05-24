@@ -29,6 +29,41 @@ function ProductInfo({ product, discountPercent, originalPrice, soldCount, quant
           <span>{soldCount.toLocaleString()}</span> Đã bán
         </div>
       </div>
+      <br />
+
+      <div className="bg-gray-50 rounded-xl p-4 space-y-3 border border-gray-200 shadow-sm">
+
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500 font-medium">
+            ✍️ Tác giả
+          </span>
+
+          <span className="text-gray-900 font-semibold">
+            {product.author || 'Vô danh'}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500 font-medium">
+            🏢 Nhà xuất bản
+          </span>
+
+          <span className="text-gray-900 font-semibold">
+            {product.publisher || 'Thế Giới'}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500 font-medium">
+            📅 Năm xuất bản
+          </span>
+
+          <span className="text-gray-900 font-semibold">
+            {product.publishYear || '1999'}
+          </span>
+        </div>
+
+      </div>
 
       {/* Price */}
       <div className="price-section">
@@ -50,7 +85,7 @@ function ProductInfo({ product, discountPercent, originalPrice, soldCount, quant
       <div className="benefits-section">
         {[
           { title: 'Miễn phí vận chuyển', desc: 'Đơn hàng từ 500.000₫' },
-          { title: 'Đổi trả trong 14 ngày', desc: 'Miễn phí đổi size & hoàn tiền' },
+          { title: 'Đổi trả trong 14 ngày', desc: 'Miễn phí đổi & hoàn tiền' },
           { title: 'Hàng chính hãng 100%', desc: 'Cam kết chất lượng' },
         ].map((b) => (
           <div className="benefit-item" key={b.title}>

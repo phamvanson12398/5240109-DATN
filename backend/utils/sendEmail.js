@@ -26,7 +26,7 @@ const sendEmail = async (to, subject, htmlContent) => {
 
         // 3. Định nghĩa tùy chọn Email
         const mailOptions = {
-            from: `"Sách ơi" <${process.env.SMTP_MAIL}>`,
+            from: `"GÓC SÁCH" <${process.env.SMTP_MAIL}>`,
             to: targetEmail,
             subject: targetSubject,
             text: targetText, // Nội dung text thuần cho các trình đọc mail cũ

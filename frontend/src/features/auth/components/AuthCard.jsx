@@ -36,7 +36,7 @@ export function AuthCard({ children, maxWidth = "max-w-md" }) {
 
       <footer className="border-t border-[#E5E7EB] bg-white/70">
         <div className="mx-auto flex max-w-[1120px] items-center justify-center px-5 py-5 text-xs text-[#6B7280]">
-          © {new Date().getFullYear()} SÁCH ƠI. Đọc hôm nay, trưởng thành ngày mai.
+          © {new Date().getFullYear()} GÓC SÁCH. Đọc hôm nay, trưởng thành ngày mai.
         </div>
       </footer>
     </div>

@@ -19,7 +19,7 @@ import Profile from "@/features/user/ProfileView";
 import UpdatePassword from "@/features/user/UpdatePasswordView";
 import UpdateProfile from "@/features/user/UpdateProfileView";
 import VoucherPage from "@/features/vouchers/VoucherPageView";
-
+import CategoryPageView from "@/features/categorys/CategoryPageView";
 // Auth flows — use barrel export from features/auth.
 import { ForgotPasswordView as ForgotPassword, LoginView as Login, LoginSuccessView as LoginSuccess, RegisterView as Register, ResetPasswordView as ResetPassword } from "@/features/auth";
 
@@ -202,7 +202,13 @@ function AppRoutes() {
           </RequireAuth>
         }
       />
-
+      <Route
+        path="/categories"
+        element={
+          <RequireAuth>
+            <CategoryPageView />
+          </RequireAuth>
+        } />
       {/* Feature admin routes: old Pages/admin wrappers are no longer active here. */}
       <Route
         path="/admin"

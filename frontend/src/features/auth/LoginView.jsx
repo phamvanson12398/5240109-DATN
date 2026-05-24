@@ -61,7 +61,7 @@ function LoginView() {
                   Khơi nguồn cảm hứng từ từng trang sách
                 </h2>
                 <p className="mt-5 text-base leading-7 text-white/80">
-                  Khám phá kho sách hiện đại, tinh tế và đầy cảm hứng cùng Sách Ơi.
+                  Khám phá kho sách hiện đại, tinh tế và đầy cảm hứng cùng GÓC SÁCH.
                 </p>
               </div>
             </div>
@@ -176,7 +176,7 @@ function LoginView() {
 
       <footer className="border-t border-[#E5E7EB] bg-white/70">
         <div className="mx-auto flex max-w-[1120px] items-center justify-center px-5 py-5 text-xs text-[#6B7280]">
-          © {new Date().getFullYear()} SÁCH ƠI. khám phá kho sách hiện đại, tinh tế và đầy cảm hứng cùng Sách Ơi.
+          © {new Date().getFullYear()} GÓC SÁCH. khám phá kho sách hiện đại, tinh tế và đầy cảm hứng cùng GÓC SÁCH.
         </div>
       </footer>
     </div>

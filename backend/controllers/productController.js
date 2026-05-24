@@ -162,7 +162,7 @@ export const updateProduct = handleAsyncError(async (req, res, next) => {
     }
 
     // 2. Cập nhật các trường cơ bản
-    const fields = ["name", "description", "price", "originalPrice", "stock", "pushlisher", "pushlishyear", "page"];
+    const fields = ["name", "description", "price", "originalPrice", "stock", "publisher", "author","publishYear","language", "page"];
     fields.forEach(f => { if (req.body[f] !== undefined) product[f] = req.body[f]; });
 
     // 3. Category & Arrays
@@ -171,20 +171,18 @@ export const updateProduct = handleAsyncError(async (req, res, next) => {
     }
 
     // 4. [FIX CHỐT] Cập nhật AI STYLIST
-    if (req.body.vibe !== undefined) product.vibe = String(req.body.vibe).trim();
-    if (req.body.style !== undefined) product.style = String(req.body.style).trim();
-    if (req.body.trending !== undefined) {
-        product.trending = req.body.trending === true || String(req.body.trending).toLowerCase() === "true" || req.body.trending === 1;
-    }
+    if (req.body.keyword !== undefined) product.keyword = String(req.body.keyword).trim();
 
     if (images.length > 0) product.images = images;
 
     // Lưu và Log kết quả
     await product.save();
-
-    console.log("Sản phẩm sau khi SAVE:", { vibe: product.vibe, style: product.style });
+    console.log(req.body);
+    
+    console.log("Sản phẩm sau khi SAVE:", { keyword: product.keyword });
     console.log("----------------------------------");
-
+    console.log(product);
+    
     res.status(200).json({
         success: true,
         product,

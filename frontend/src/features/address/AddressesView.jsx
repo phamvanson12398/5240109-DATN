@@ -94,7 +94,7 @@ function AddressesView() {
 
     return (
         <>
-            <PageTitle title="Địa chỉ - Sách Ơi" />
+            <PageTitle title="Địa chỉ - GÓC SÁCH" />
             <Navbar />
 
             <div className="account-container">

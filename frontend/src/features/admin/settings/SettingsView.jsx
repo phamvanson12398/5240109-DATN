@@ -111,7 +111,7 @@ function SettingsView() {
                         <span className="settings-eyebrow">System settings</span>
                         <h2 className="settings-title">Cấu hình hệ thống</h2>
                         <p className="settings-subtitle">
-                            Quản lý thông tin cửa hàng và thiết lập cơ bản cho Sách Ơi.
+                            Quản lý thông tin cửa hàng và thiết lập cơ bản cho GÓC SÁCH.
                         </p>
                     </div> */}
                 </div>
@@ -146,7 +146,7 @@ function SettingsView() {
                                         name="companyName"
                                         value={formData.companyName}
                                         onChange={handleInputChange}
-                                        placeholder="Sách Ơi"
+                                        placeholder="GÓC SÁCH"
                                     />
                                 </div>
 
@@ -314,7 +314,7 @@ function SettingsView() {
                                 <StorefrontOutlinedIcon />
                             </div>
                             <h3>Logo cửa hàng</h3>
-                            <p>Cập nhật bộ nhận diện Sách Ơi cho các trang bán hàng.</p>
+                            <p>Cập nhật bộ nhận diện GÓC SÁCH cho các trang bán hàng.</p>
                             <button type="button">Tải logo</button>
                         </div>
 

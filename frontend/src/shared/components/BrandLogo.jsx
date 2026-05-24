@@ -25,7 +25,7 @@ function BrandLogo({
 
   const logo = (
     <>
-      <span className="text-[#000000]"> SÁCH</span><span className="text-[#E85D75]">ƠI</span>
+      <span className="text-[#000000]"> GÓC</span><span className="text-[#E85D75]">SÁCH</span>
     </>
   );
 
@@ -34,7 +34,7 @@ function BrandLogo({
   }
 
   return (
-    <Link to={to} className={classes} aria-label="Trang chủ Sách Ơi">
+    <Link to={to} className={classes} aria-label="Trang chủ GÓC SÁCH">
       {logo}
     </Link>
   );

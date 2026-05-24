@@ -75,7 +75,7 @@ const LoginSuccessView = () => {
 
       <footer className="border-t border-[#E5E7EB] bg-white/70">
         <div className="mx-auto flex max-w-[1120px] items-center justify-center px-5 py-5 text-xs text-[#6B7280]">
-          © {new Date().getFullYear()} Sách Ơi. Đọc hôm nay, trưởng thành ngày mai.
+          © {new Date().getFullYear()} GÓC SÁCH. Đọc hôm nay, trưởng thành ngày mai.
         </div>
       </footer>
     </div>

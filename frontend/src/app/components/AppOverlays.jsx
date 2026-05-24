@@ -4,7 +4,7 @@ import {
   selectCurrentUser,
   selectIsAuthenticated,
 } from "@/features/auth/authSelectors";
-// import AIChatBubble from "@/features/chat/components/AIChatBubble";
+import AIChatBubble from "@/features/chat/components/AIChatBubble";
 import UserDashboard from "@/features/user/UserDashboardView";
 
 function AppOverlays() {
@@ -14,7 +14,7 @@ function AppOverlays() {
   return (
     <>
       {/* UserDashboard moved to Navbar to prevent overlap issues */}
-      {/* <AIChatBubble /> */}
+      <AIChatBubble />
     </>
   );
 }

@@ -66,7 +66,7 @@ function RegisterView() {
                   Khơi nguồn cảm hứng từ từng trang sách
                 </h2>
                 <p className="mt-5 text-base leading-7 text-white/80">
-                  Khám phá kho sách hiện đại, tinh tế và đầy cảm hứng cùng Sách Ơi.
+                  Khám phá kho sách hiện đại, tinh tế và đầy cảm hứng cùng GÓC SÁCH.
                 </p>
               </div>
             </div>
@@ -233,7 +233,7 @@ function RegisterView() {
                     className="mt-0.5 h-4 w-4 rounded border-[#E5E7EB] text-[#E85D75] focus:ring-[#E85D75]/20"
                   />
                   <span>
-                    Tôi đồng ý với điều khoản sử dụng và chính sách bảo mật của Sách Ơi.
+                    Tôi đồng ý với điều khoản sử dụng và chính sách bảo mật của GÓC SÁCH.
                   </span>
                 </label>
 
@@ -274,7 +274,7 @@ function RegisterView() {
 
       <footer className="border-t border-[#E5E7EB] bg-white/70">
         <div className="mx-auto flex max-w-[1120px] items-center justify-center px-5 py-5 text-xs text-[#6B7280]">
-          © {new Date().getFullYear()} SÁCH ƠI. Đọc hôm nay, trưởng thành ngày mai.
+          © {new Date().getFullYear()} GÓC SÁCH. Đọc hôm nay, trưởng thành ngày mai.
         </div>
       </footer>
     </div>

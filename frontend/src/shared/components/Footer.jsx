@@ -15,7 +15,7 @@ function Footer() {
           <div className="space-y-6">
             <BrandLogo size="lg" tone="light" />
             <p className="text-slate-400 text-sm leading-relaxed max-w-xs font-light">
-              Khám phá thế giới tri thức hiện đại với những cuốn sách được tuyển chọn dành cho mọi tâm hồn yêu đọc sách. Trải nghiệm không gian đọc đầy cảm hứng cùng Sách Ơi.
+              Khám phá thế giới tri thức hiện đại với những cuốn sách được tuyển chọn dành cho mọi tâm hồn yêu đọc sách. Trải nghiệm không gian đọc đầy cảm hứng cùng GÓC SÁCH.
             </p>
             <div className="flex items-center gap-4">
               {[FaFacebook, FaInstagram, FaGithub].map((Icon, i) => (
@@ -81,12 +81,12 @@ function Footer() {
         {/* Bottom */}
         <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
           <p className="text-xs font-light text-slate-500 tracking-wider">
-            &copy; {currentYear} SÁCH ƠI. Đọc hôm nay, trưởng thành ngày mai.
+            &copy; {currentYear} GÓC SÁCH. Đọc hôm nay, trưởng thành ngày mai.
           </p>
           <div className="flex items-center gap-2 text-xs font-light text-slate-500 tracking-wider">
             <span>Phát triển bởi</span>
             <Heart size={14} className="text-accent fill-accent" />
-            <span>đội ngũ Sách Ơi</span>
+            <span>đội ngũ GÓC SÁCH</span>
           </div>
         </div>
       </div>

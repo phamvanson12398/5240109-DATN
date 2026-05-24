@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import { getFrontendBaseUrl } from '../config/runtimeConfig.js';
 import sendEmail from '../utils/sendEmail.js';
 /**
- * Sách Ơi Email Service (v2.0)
+ * GÓC SÁCH Email Service (v2.0)
  * Chức năng: Gửi Email thông báo trạng thái đơn hàng với Template HTML chuyên nghiệp.
  */
 
@@ -54,7 +54,7 @@ const emailLayout = (content, order) => `
 <body>
     <div class="container">
         <div class="header">
-            <h1>SÁCH ƠI</h1>
+            <h1>GÓC SÁCH</h1>
         </div>
         <div class="content">
             ${content}
@@ -81,7 +81,7 @@ const emailLayout = (content, order) => `
             </center>
         </div>
         <div class="footer">
-            <p>© 2026 Sách Ơi - Không gian dành cho những tâm hồn yêu sách</p>
+            <p>© 2026 GÓC SÁCH - Không gian dành cho những tâm hồn yêu sách</p>
             <p>Địa chỉ: Đà Nẵng, Việt Nam | Hotline: 09xx xxx xxx</p>
         </div>
     </div>
@@ -93,8 +93,8 @@ const emailLayout = (content, order) => `
 const getConfirmationContent = (order) => `
     <div class="status-badge" style="background-color: #ecfdf5; color: #059669;">Đã xác nhận</div>
     <p>Chào <strong>${order.shippingInfo.name}</strong>,</p>
-    <p>Cảm ơn bạn đã tin tưởng Sách Ơi! Đơn hàng số <strong>#${order._id.toString().slice(-6).toUpperCase()}</strong> của bạn đã được chúng tôi xác nhận.</p>
-    <p>Đội ngũ của Sách Ơi đang chuẩn bị đóng gói sản phẩm để gửi tới bạn sớm nhất có thể.</p>
+    <p>Cảm ơn bạn đã tin tưởng GÓC SÁCH! Đơn hàng số <strong>#${order._id.toString().slice(-6).toUpperCase()}</strong> của bạn đã được chúng tôi xác nhận.</p>
+    <p>Đội ngũ của GÓC SÁCH đang chuẩn bị đóng gói sản phẩm để gửi tới bạn sớm nhất có thể.</p>
 `;
 
 // 2. Template Đang giao hàng
@@ -110,7 +110,7 @@ const getDeliveredContent = (order) => `
     <div class="status-badge" style="background-color: #ecfdf5; color: #059669;">Giao hàng thành công</div>
     <p>Chào bạn,</p>
     <p>Đơn hàng <strong>#${order._id.toString().slice(-6).toUpperCase()}</strong> đã được giao thành công.</p>
-    <p>Hy vọng bạn hài lòng với sản phẩm của Sách Ơi. Đừng quên để lại đánh giá để nhận xu và giúp chúng tôi cải thiện dịch vụ nhé!</p>
+    <p>Hy vọng bạn hài lòng với sản phẩm của GÓC SÁCH. Đừng quên để lại đánh giá để nhận xu và giúp chúng tôi cải thiện dịch vụ nhé!</p>
 `;
 
 // 4. Template Đã hủy đơn
@@ -134,19 +134,19 @@ export const sendStatusEmail = async (order, status) => {
 
     switch (status) {
       case 'Chờ xử lý':
-        subject = `[Sách Ơi] Xác nhận đơn hàng #${order._id.toString().slice(-6).toUpperCase()}`;
+        subject = `[GÓC SÁCH] Xác nhận đơn hàng #${order._id.toString().slice(-6).toUpperCase()}`;
         content = getConfirmationContent(order);
         break;
       case 'Đang giao':
-        subject = `[Sách Ơi] Đơn hàng #${order._id.toString().slice(-6).toUpperCase()} đang được giao`;
+        subject = `[GÓC SÁCH] Đơn hàng #${order._id.toString().slice(-6).toUpperCase()} đang được giao`;
         content = getShippingContent(order);
         break;
       case 'Đã giao':
-        subject = `[Sách Ơi] Đơn hàng #${order._id.toString().slice(-6).toUpperCase()} đã giao thành công`;
+        subject = `[GÓC SÁCH] Đơn hàng #${order._id.toString().slice(-6).toUpperCase()} đã giao thành công`;
         content = getDeliveredContent(order);
         break;
       case 'Đã hủy':
-        subject = `[Sách Ơi] Đơn hàng #${order._id.toString().slice(-6).toUpperCase()} đã bị hủy`;
+        subject = `[GÓC SÁCH] Đơn hàng #${order._id.toString().slice(-6).toUpperCase()} đã bị hủy`;
         content = getCancelledContent(order);
         break;
       default:
@@ -164,7 +164,7 @@ export const sendStatusEmail = async (order, status) => {
     }
 
     const mailOptions = {
-      from: `"Sách Ơi" <${process.env.SMTP_MAIL}>`,
+      from: `"GÓC SÁCH" <${process.env.SMTP_MAIL}>`,
       to: recipientEmail,
       subject: subject,
       html: html,

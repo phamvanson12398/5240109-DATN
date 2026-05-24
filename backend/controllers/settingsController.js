@@ -14,7 +14,7 @@ export const getSettings = handleAsyncError(async (req, res, next) => {
         
             adminName: req.user.name,
             email: req.user.email,
-            companyName: 'Sách Ơi', // Default company name
+            companyName: 'GÓC SÁCH', // Default company name
             address: 'Chưa cập nhật', // Placeholder address
             notifications: {
                 newOrders: true,

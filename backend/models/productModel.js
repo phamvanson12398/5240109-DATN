@@ -50,6 +50,10 @@ const productSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
+    author: { 
+        type: String,
+        default: ""
+    },
     publishYear: { // năm xuất bản
         type: Number
     },
@@ -88,9 +92,10 @@ const productSchema = new mongoose.Schema({
         enum: ["available", "out_of_stock", "discontinued"],
         default: "available"
     },
-    keyword: [
-         String
-    ],
+    keyword: {
+        type: String,
+        default: ""
+    },
     level: String,
     createdAt: { // ngày tạo sản phẩm
         type: Date,

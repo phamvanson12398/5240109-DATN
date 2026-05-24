@@ -9,6 +9,7 @@ import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
 import { logout } from '@/features/user/userSlice';
 
 const navItems = [
@@ -17,6 +18,7 @@ const navItems = [
     { name: 'Đơn hàng', icon: <ReceiptLongOutlinedIcon />, path: '/admin/orders' },
     { name: 'Người dùng', icon: <GroupOutlinedIcon />, path: '/admin/users' },
     { name: 'Mã giảm giá', icon: <LocalOfferOutlinedIcon />, path: '/admin/vouchers' },
+    { name: 'Danh mục', icon: <CategoryOutlinedIcon  />, path: '/admin/categories' },
     { name: 'Cài đặt', icon: <SettingsOutlinedIcon />, path: '/admin/settings' },
 ];
 
@@ -37,7 +39,7 @@ export default function Sidebar({ user }) {
                     <HomeOutlinedIcon />
                 </span>
                 <span>
-                    <strong>SÁCH ƠI</strong>
+                    <strong>GÓC SÁCH</strong>
                 </span>
             </Link>
 

@@ -302,7 +302,7 @@ function MyOrders() {
                         {/* Order Header */}
                         <div className="order-card-header">
                           <div className="order-header-left">
-                            <span className="shop-name">{user?.name || "Sách Ơi"}</span>
+                            <span className="shop-name">{user?.name || "GÓC SÁCH"}</span>
                             <span className="header-divider">|</span>
                             <span className={`status-badge ${statusConfig.className}`}>
                               {statusConfig.text}

@@ -2,11 +2,11 @@ export const HOME_HERO = {
   eyebrow: "Khơi nguồn tri thức",
   title: "Kho sách mới",
   description:
-    "Khám phá thế giới tri thức hiện đại, tinh tế và truyền cảm hứng cùng Sách Ơi.",
+    "Khám phá thế giới tri thức hiện đại, tinh tế và truyền cảm hứng cùng GÓC SÁCH.",
   ctaLabel: "Khám phá ngay",
   ctaTo: "/products",
   image: "/images/banner_1.png",
-  imageAlt: "Banner sách Sách Ơi",
+  imageAlt: "Banner sách GÓC SÁCH",
 };
 
 export const HOME_CATEGORIES = [

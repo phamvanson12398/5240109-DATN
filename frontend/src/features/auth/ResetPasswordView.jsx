@@ -45,7 +45,7 @@ function ResetPasswordView() {
           Cập nhật mật khẩu
         </h1>
         <p className="mt-3 text-sm leading-6 text-[#6B7280]">
-          Chọn mật khẩu mới để tiếp tục sử dụng tài khoản SÁCH ƠI của bạn.
+          Chọn mật khẩu mới để tiếp tục sử dụng tài khoản GÓC SÁCH của bạn.
         </p>
       </div>
 

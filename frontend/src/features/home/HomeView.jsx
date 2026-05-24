@@ -20,7 +20,7 @@ function HomeView() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] font-sans text-[#111827] selection:bg-[#E85D75]/20 overflow-x-hidden">
-      <PageTitle title="Sách ơi " />
+      <PageTitle title="GÓC SÁCH " />
       <Navbar />
       <motion.main
         initial={{ opacity: 0 }}

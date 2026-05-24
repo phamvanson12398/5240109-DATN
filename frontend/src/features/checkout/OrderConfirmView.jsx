@@ -407,7 +407,7 @@ function OrderConfirm() {
                   </button>
 
                   <p className="mt-4 text-center text-[10px] uppercase tracking-tighter text-slate-400">
-                    Bằng cách nhấn nút, bạn đồng ý với các điều khoản của Sách Ơi
+                    Bằng cách nhấn nút, bạn đồng ý với các điều khoản của GÓC SÁCH
                   </p>
                 </div>
               </div>
