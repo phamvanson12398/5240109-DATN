@@ -601,6 +601,13 @@
     cursor: pointer;
 }
 
+.admin-hidden-date-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+}
 .admin-order-actions button:hover {
     color: #e85d75;
     background: #fff1f3;

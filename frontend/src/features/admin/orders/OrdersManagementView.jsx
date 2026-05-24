@@ -76,6 +76,8 @@ const getPaymentLabel = (method = 'COD') => {
  */
 function OrdersManagementView() {
     const dispatch = useDispatch();
+    const { isAuthenticated, user } = useSelector(state => state.user);
+    
     const { orders, loading, error } = useSelector(selectAdminOrders);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -87,9 +89,11 @@ function OrdersManagementView() {
         orderId: '',
         status: '',
         trackingNumber: '',
-        cancellationReason: ''
+        cancellationReason: '',
+        email : user.email,
     });
-
+    console.log(modalData);
+    
     // Fetch orders khi component mount
     useEffect(() => {
         dispatch(fetchAllOrders());
@@ -111,7 +115,8 @@ function OrdersManagementView() {
                 orderId: id,
                 status: newStatus,
                 trackingNumber: order.trackingNumber || '',
-                cancellationReason: ''
+                cancellationReason: '',
+                email: user.email
             });
             setOpenModal(true);
         } else if (newStatus === "Đã hủy") {
@@ -119,19 +124,21 @@ function OrdersManagementView() {
                 orderId: id,
                 status: newStatus,
                 trackingNumber: '',
-                cancellationReason: order.cancellationReason || ''
+                cancellationReason: order.cancellationReason || '',
+                email: user.email
             });
             setOpenModal(true);
         } else {
+            
             // Các trạng thái khác cập nhật trực tiếp
-            executeStatusUpdate(id, newStatus);
+            executeStatusUpdate(id, newStatus,user.email);
         }
     };
 
     // Thực thi cập nhật thực sự
-    const executeStatusUpdate = async (id, status, extra = {}) => {
+    const executeStatusUpdate = async (id, status,email, extra = {}) => {
         try {
-            await dispatch(updateOrderStatus({ id, status, ...extra })).unwrap();
+            await dispatch(updateOrderStatus({ id, status,email, ...extra })).unwrap();
             toast.success(`Đã chuyển đơn hàng sang trạng thái "${status}"`);
             setOpenModal(false);
         } catch (err) {
@@ -172,7 +179,7 @@ function OrdersManagementView() {
 
     // Xử lý gửi từ Modal
     const handleModalSubmit = () => {
-        const { orderId, status, trackingNumber, cancellationReason } = modalData;
+        const { orderId, status, trackingNumber, cancellationReason , email } = modalData;
         const normalizedTrackingCode = normalizeTrackingCode(trackingNumber);
 
         if (status === "Đang giao" && !normalizedTrackingCode) {
@@ -186,8 +193,8 @@ function OrdersManagementView() {
         if (status === "Đã hủy" && !cancellationReason.trim()) {
             return toast.warning('Vui lòng nhập lý do hủy đơn hàng!');
         }
-
-        executeStatusUpdate(orderId, status, { trackingNumber: normalizedTrackingCode, cancellationReason });
+        
+        executeStatusUpdate(orderId, status, email,{ trackingNumber: normalizedTrackingCode, cancellationReason });
     };
 
 
@@ -371,6 +378,7 @@ function OrdersManagementView() {
                                 <th>Mã vận đơn</th>
                                 <th>Thanh toán</th>
                                 <th>Trạng thái</th>
+                                <th>Người xử lý</th>
                                 <th>Ngày</th>
                                 <th>Hành động</th>
                             </tr>
@@ -450,6 +458,7 @@ function OrdersManagementView() {
                                                     </div>
                                                 )}
                                             </td>
+                                            <td className="order-date">{order.usercontrol}</td>
                                             <td className="order-date">{new Date(order.createdAt).toLocaleDateString('vi-VN')}</td>
                                             <td>
                                                 <div className="action-buttons">

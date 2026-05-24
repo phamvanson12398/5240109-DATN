@@ -49,7 +49,10 @@ const orderSchema = new mongoose.Schema(
     },
 
     orderItems: [orderItemSchema],
-
+    usercontrol :{
+      type:String,
+      default:"",
+    },
     shippingInfo: {
       fullName: { type: String, required: true },
       phone: { type: String, required: true },

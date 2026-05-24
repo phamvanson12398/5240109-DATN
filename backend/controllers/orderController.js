@@ -267,7 +267,9 @@ export const updateOrderStauts = handleAsyncError(async (req, res, next) => {
 
   const previousStatus = order.orderStatus;
   const newStatus = req.body.status;
-  const { trackingNumber, cancellationReason } = req.body;
+  const { trackingNumber, cancellationReason ,email } = req.body;
+  console.log(req.body);
+  
   const normalizedTrackingNumber = normalizeTrackingCode(trackingNumber);
 
   const allowed = [ORDER_PENDING, ORDER_SHIPPING, ORDER_DELIVERED, ORDER_CANCELLED];
@@ -324,7 +326,8 @@ export const updateOrderStauts = handleAsyncError(async (req, res, next) => {
       order.paymentStatus = "Paid";
     }
   }
-
+  order.usercontrol = email;
+  
   await order.save({ validateBeforeSave: false });
   sendStatusEmail(order, newStatus);
 

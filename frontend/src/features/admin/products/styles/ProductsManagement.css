@@ -357,11 +357,13 @@
 .product-stock-badge {
     min-height: 28px;
     padding: 0 10px;
-    color: #16a34a;
-    background: #ecfdf3;
-    border: 1px solid #bbf7d0;
+    color: #ff0404;
+    /* background: #ecfdf3; */
+    /* border: 1px solid #bbf7d0; */
     font-size: 0.82rem;
 }
+
+
 
 .product-stock-badge.low {
     color: #dc2626;

@@ -200,6 +200,7 @@ function ProductsManagementView() {
                                     <th>Giá</th>
                                     <th>Danh mục</th>
                                     <th>Tồn kho</th>
+                                    <th>Đã bán</th>
                                     <th>Đánh giá</th>
                                     <th>Hành động</th>
                                 </tr>
@@ -235,8 +236,13 @@ function ProductsManagementView() {
                                             
                                             <td className="product-category">{getProductCategory(product)}</td>
                                             <td>
-                                                <span className={`product-stock-badge ${product.stock < 10 ? 'low' : ''}`}>
+                                                <span className={`product-stock-badge ${product.stock < 10 ? 'low' : ''}`} >
                                                     {product.stock}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span className={`product-sold-badge ${product.stock < 10 ? 'low' : ''}`} style={{color: "green"}}>
+                                                    {product.sold}
                                                 </span>
                                             </td>
                                             <td>

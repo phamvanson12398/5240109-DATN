@@ -1,30 +1,62 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
+
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
-import { fetchDashboardStats, fetchRecentOrders, fetchAllProducts, fetchRevenueAnalytics } from '@/features/admin/state/adminSlice';
+
+import {
+    fetchDashboardStats,
+    fetchRecentOrders,
+    fetchAllProducts,
+    fetchRevenueAnalytics
+} from '@/features/admin/state/adminSlice';
+
 import { selectAdminDashboard } from '@/features/admin/state/adminSelectors';
+
 import { toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
 
 import KPISection from '@/features/admin/dashboard/components/KPISection';
 import RevenueChart from '@/features/admin/dashboard/components/RevenueChart';
 import OrdersTable from '@/features/admin/dashboard/components/OrdersTable';
+
 import '@/features/admin/dashboard/styles/Dashboard.css';
 
 function DashboardView() {
     const dispatch = useDispatch();
+
+    const dateInputRef = useRef(null);
+
+    const [dateRange, setDateRange] = useState({
+        startDate: '',
+        endDate: ''
+    });
+
+    const [selectingStep, setSelectingStep] = useState('start');
+
     const { isAuthenticated, user } = useSelector(state => state.user);
-    const { stats, recentOrders, revenueAnalytics, loading, error } = useSelector(selectAdminDashboard);
+
+    const {
+        stats,
+        recentOrders,
+        revenueAnalytics,
+        loading,
+        error
+    } = useSelector(selectAdminDashboard);
+
     const products = useSelector(state => state.admin.products);
 
     const userRole = user?.role_id?.name || user?.role;
+
     const bestSellingProducts = useMemo(() => {
-        const productSource = Array.isArray(products) && products.length > 0
-            ? products
-            : (Array.isArray(stats?.products) ? stats.products : []);
+        const productSource =
+            Array.isArray(products) && products.length > 0
+                ? products
+                : Array.isArray(stats?.products)
+                    ? stats.products
+                    : [];
 
         return [...productSource]
             .sort((a, b) => Number(b?.sold || 0) - Number(a?.sold || 0))
@@ -33,18 +65,108 @@ function DashboardView() {
 
     const formatCompactPrice = (price) => {
         const amount = Number(price || 0);
+
         if (amount >= 1000000) {
             return `${Number((amount / 1000000).toFixed(1))}tr`;
         }
+
         return `${Math.round(amount / 1000)}k`;
     };
 
     const formatSoldCount = (sold) => {
         const value = Number(sold || 0);
+
         if (value >= 1000) {
             return `${Number((value / 1000).toFixed(1))}k`;
         }
+
         return value;
+    };
+
+    const formatDateRangeLabel = () => {
+        const { startDate, endDate } = dateRange;
+
+        if (!startDate && !endDate) return 'Chọn khoảng ngày';
+
+        const format = (date) => new Date(date).toLocaleDateString('vi-VN');
+
+        if (startDate && endDate) {
+            return `${format(startDate)} - ${format(endDate)}`;
+        }
+
+        return `Từ ${format(startDate)} - chọn ngày kết thúc`;
+    };
+
+    const handleOpenDatePicker = () => {
+        if (dateInputRef.current?.showPicker) {
+            dateInputRef.current.showPicker();
+        } else {
+            dateInputRef.current?.click();
+        }
+    };
+
+    const handleDateChange = (e) => {
+        const selectedValue = e.target.value;
+
+        if (!selectedValue) return;
+
+        if (selectingStep === 'start') {
+            setDateRange({
+                startDate: selectedValue,
+                endDate: ''
+            });
+
+            setSelectingStep('end');
+
+            setTimeout(() => {
+                if (dateInputRef.current?.showPicker) {
+                    dateInputRef.current.showPicker();
+                } else {
+                    dateInputRef.current?.click();
+                }
+            }, 150);
+
+            return;
+        }
+
+        const nextRange = {
+            ...dateRange,
+            endDate: selectedValue
+        };
+
+        if (new Date(nextRange.startDate) > new Date(nextRange.endDate)) {
+            toast.error('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu');
+
+            setDateRange({
+                startDate: '',
+                endDate: ''
+            });
+
+            setSelectingStep('start');
+            return;
+        }
+
+        setDateRange(nextRange);
+        setSelectingStep('start');
+
+        dispatch(fetchDashboardStats(nextRange));
+        dispatch(fetchRevenueAnalytics(nextRange));
+    };
+
+    const handleResetDateRange = () => {
+        setDateRange({
+            startDate: '',
+            endDate: ''
+        });
+
+        setSelectingStep('start');
+
+        if (dateInputRef.current) {
+            dateInputRef.current.value = '';
+        }
+
+        dispatch(fetchDashboardStats());
+        dispatch(fetchRevenueAnalytics());
     };
 
     useEffect(() => {
@@ -66,7 +188,7 @@ function DashboardView() {
         return <Navigate to="/login" replace />;
     }
 
-    if (user && userRole !== 'admin' && userRole !== 'staff' ) {
+    if (user && userRole !== 'admin' && userRole !== 'staff') {
         toast.error('Bạn không có quyền truy cập trang này');
         return <Navigate to="/" replace />;
     }
@@ -81,15 +203,17 @@ function DashboardView() {
 
     const exportToPDF = async () => {
         const element = document.getElementById('dashboard-content');
+
         if (!element) {
-            toast.error("Không tìm thấy vùng dữ liệu để xuất PDF");
+            toast.error('Không tìm thấy vùng dữ liệu để xuất PDF');
             return;
         }
 
-        const toastId = toast.loading("Đang khởi tạo PDF...");
+        const toastId = toast.loading('Đang khởi tạo PDF...');
 
         try {
             const style = document.createElement('style');
+
             style.id = 'hide-scrollbar-style';
             style.innerHTML = `
                 *::-webkit-scrollbar { display: none !important; }
@@ -99,6 +223,7 @@ function DashboardView() {
                 .bg-slate-50, .bg-slate-100, .bg-gray-50 { background-color: #ffffff !important; }
                 .border { border-color: #e2e8f0 !important; }
             `;
+
             document.head.appendChild(style);
 
             const dataUrl = await toJpeg(element, {
@@ -107,7 +232,8 @@ function DashboardView() {
                 pixelRatio: 2,
                 cacheBust: true,
                 skipFonts: false,
-                imagePlaceholder: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+                imagePlaceholder:
+                    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
                 filter: (node) => !node?.classList?.contains('no-print'),
                 style: {
                     fontFamily: 'sans-serif',
@@ -120,7 +246,12 @@ function DashboardView() {
 
             document.head.removeChild(style);
 
-            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
             const margin = 10;
@@ -147,13 +278,26 @@ function DashboardView() {
             const day = String(today.getDate()).padStart(2, '0');
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const year = today.getFullYear();
+
             const filename = `Dashboard_${day}_${month}_${year}.pdf`;
 
             pdf.save(filename);
-            toast.update(toastId, { render: "Đã xuất PDF thành công!", type: "success", isLoading: false, autoClose: 3000 });
+
+            toast.update(toastId, {
+                render: 'Đã xuất PDF thành công!',
+                type: 'success',
+                isLoading: false,
+                autoClose: 3000
+            });
         } catch (err) {
             console.error(err);
-            toast.update(toastId, { render: "Lỗi trong quá trình xuất thẻ PDF!", type: "error", isLoading: false, autoClose: 3000 });
+
+            toast.update(toastId, {
+                render: 'Lỗi trong quá trình xuất PDF!',
+                type: 'error',
+                isLoading: false,
+                autoClose: 3000
+            });
         }
     };
 
@@ -162,14 +306,47 @@ function DashboardView() {
             <div className="admin-dashboard-header">
                 <div>
                     <h2>Tổng Quan Cửa Hàng</h2>
-                    <p>Chào mừng trở lại, {user?.name || "Quản trị viên"}. Đây là tình hình vận hành hôm nay.</p>
+                    <p>
+                        Chào mừng trở lại, {user?.name || 'Quản trị viên'}.
+                        Đây là tình hình vận hành hôm nay.
+                    </p>
                 </div>
 
                 <div className="admin-dashboard-actions">
-                    <button type="button" className="admin-dashboard-action secondary">
-                        <CalendarMonthOutlinedIcon />
-                        Tháng này
-                    </button>
+                    <div className="admin-date-picker-wrapper">
+                        <button
+                            type="button"
+                            className="admin-dashboard-action secondary"
+                            onClick={handleOpenDatePicker}
+                        >
+                            <CalendarMonthOutlinedIcon />
+                            {formatDateRangeLabel()}
+                        </button>
+
+                        <input
+                            ref={dateInputRef}
+                            type="date"
+                            value={
+                                selectingStep === 'start'
+                                    ? dateRange.startDate
+                                    : dateRange.endDate
+                            }
+                            min={selectingStep === 'end' ? dateRange.startDate : undefined}
+                            onChange={handleDateChange}
+                            className="admin-hidden-date-input"
+                        />
+                    </div>
+
+                    {(dateRange.startDate || dateRange.endDate) && (
+                        <button
+                            type="button"
+                            className="admin-dashboard-action secondary no-print"
+                            onClick={handleResetDateRange}
+                        >
+                            Xóa lọc
+                        </button>
+                    )}
+
                     <button
                         type="button"
                         className="admin-dashboard-action primary no-print"
@@ -184,11 +361,14 @@ function DashboardView() {
             {stats && <KPISection stats={stats} />}
 
             <div className="admin-dashboard-grid">
-                <RevenueChart analyticsData={revenueAnalytics} loading={loading} />
+                <RevenueChart
+                    analyticsData={revenueAnalytics}
+                    loading={loading}
+                />
 
                 <aside className="admin-bestseller-card">
                     <div className="admin-bestseller-header">
-                        <h4> Sách bán chạy</h4>
+                        <h4>Sách bán chạy</h4>
                         <Link to="/admin/products">Tất cả</Link>
                     </div>
 
@@ -204,12 +384,17 @@ function DashboardView() {
                                         src={product.images?.[0]?.url || '/placeholder.png'}
                                         alt={product.name || 'Sản phẩm'}
                                     />
+
                                     <div className="admin-bestseller-info">
-                                        <strong>{product.name || 'Sản phẩm chưa đặt tên'}</strong>
+                                        <strong>
+                                            {product.name || 'Sản phẩm chưa đặt tên'}
+                                        </strong>
                                         <span>
-                                            Đã bán: {formatSoldCount(product.sold)} · Kho: {product.stock ?? 0}
+                                            Đã bán: {formatSoldCount(product.sold)} · Kho:{' '}
+                                            {product.stock ?? 0}
                                         </span>
                                     </div>
+
                                     <b>{formatCompactPrice(product.price)}</b>
                                 </Link>
                             ))
