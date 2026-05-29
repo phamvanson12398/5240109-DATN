@@ -1,125 +1,214 @@
-import { useState } from 'react';
-import EditCategoryModal from './EditCategoryModal';
-import DeleteCategoryModal from './DeleteCategoryModal';
+import React, { useState } from "react";
+import { categoryApi } from "../api/categoryApi.js";
+import EditCategoryModal from "./EditCategoryModal";
+import DeleteCategoryModal from "./DeleteCategoryModal";
 
-export default function CategoryTable({ categories }) {
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [isEditOpen, setIsEditOpen] = useState(false);
-    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+export default function CategoryTable({
+  categories = [],
+  allCategories = [],
+  fetchCategories,
+}) {
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-    const handleOpenEdit = (category) => {
-        setSelectedCategory(category);
-        setIsEditOpen(true);
-    };
+  const parentCategories = categories.filter((category) => {
+    return !category.parentId;
+  });
 
-    const handleOpenDelete = (category) => {
-        setSelectedCategory(category);
-        setIsDeleteOpen(true);
-    };
+  const getChildCategories = (parentId) => {
+    return allCategories.filter((category) => {
+      const categoryParentId =
+        typeof category.parentId === "object"
+          ? category.parentId?._id
+          : category.parentId;
 
-    const handleCloseEdit = () => {
-        setIsEditOpen(false);
-        setSelectedCategory(null);
-    };
+      return categoryParentId === parentId;
+    });
+  };
 
-    const handleCloseDelete = () => {
-        setIsDeleteOpen(false);
-        setSelectedCategory(null);
-    };
+  const handleOpenEdit = (category) => {
+    setSelectedCategory(category);
+    setIsEditOpen(true);
+  };
 
-    const handleSaveEdit = (updatedCategory) => {
-        console.log('Danh mục sau khi sửa:', updatedCategory);
+  const handleOpenDelete = (category) => {
+    setSelectedCategory(category);
+    setIsDeleteOpen(true);
+  };
 
-        // Sau này gọi API update ở đây
-        // dispatch(updateCategory(updatedCategory));
+  const handleCloseEdit = () => {
+    setIsEditOpen(false);
+    setSelectedCategory(null);
+  };
 
-        handleCloseEdit();
-    };
+  const handleCloseDelete = () => {
+    setIsDeleteOpen(false);
+    setSelectedCategory(null);
+  };
 
-    const handleConfirmDelete = (category) => {
-        console.log('Danh mục cần xóa:', category);
+  const handleSaveEdit = async (updatedCategory) => {
+    try {
+      await categoryApi.updateCategory(updatedCategory._id, {
+        name: updatedCategory.name,
+        description: updatedCategory.description,
+        parentId: updatedCategory.parentId || null,
+      });
 
-        // Sau này gọi API delete ở đây
-        // dispatch(deleteCategory(category.id || category._id));
+      await fetchCategories();
+      handleCloseEdit();
+    } catch (error) {
+      console.log("Lỗi khi cập nhật category:", error);
+    }
+  };
 
-        handleCloseDelete();
-    };
+  const handleConfirmDelete = async (category) => {
+    try {
+      await categoryApi.deleteCategory(category._id);
 
-    return (
-        <>
-            <div className="category-table-scroll">
-                <table className="category-table">
-                    <thead>
-                        <tr>
-                            <th>Tên danh mục</th>
-                            <th>Mô tả</th>
-                            <th className="category-actions">
-                                Thao tác
-                            </th>
-                        </tr>
-                    </thead>
+      await fetchCategories();
+      handleCloseDelete();
+    } catch (error) {
+      console.log("Lỗi khi xóa category:", error);
+    }
+  };
 
-                    <tbody>
-                        {categories.map((category) => (
-                            <tr key={category.id || category._id}>
-                                <td>
-                                    <div className="category-cell">
-                                        <div className="category-icon-box">
-                                            <span className="material-symbols-outlined">
-                                                {category.icon || 'menu_book'}
-                                            </span>
-                                        </div>
+  return (
+    <>
+      <div className="category-table-scroll">
+        <table className="category-table">
+          <thead>
+            <tr>
+              <th>Tên danh mục</th>
+              <th>Mô tả</th>
+              <th className="category-actions">Thao tác</th>
+            </tr>
+          </thead>
 
-                                        <span className="category-name">
-                                            {category.name}
-                                        </span>
-                                    </div>
-                                </td>
+          <tbody>
+            {parentCategories.length === 0 ? (
+              <tr>
+                <td colSpan="3" className="category-empty">
+                  Chưa có danh mục nào
+                </td>
+              </tr>
+            ) : (
+              parentCategories.map((parent) => (
+                <React.Fragment key={parent._id}>
+                  <tr className="category-parent-row">
+                    <td>
+                      <div className="category-cell">
+                        <div className="category-icon-box">
+                          <span className="material-symbols-outlined">
+                            {parent.icon || "folder"}
+                          </span>
+                        </div>
 
-                                <td className="category-description">
-                                    {category.description}
-                                </td>
+                        <span className="category-name">
+                          {parent.name}
+                        </span>
+                      </div>
+                    </td>
 
-                                <td className="category-actions">
-                                    <button
-                                        type="button"
-                                        className="category-action-btn category-edit-btn"
-                                        onClick={() => handleOpenEdit(category)}
-                                    >
-                                        <span className="material-symbols-outlined">
-                                            edit
-                                        </span>
-                                    </button>
+                    <td className="category-description">
+                      {parent.description}
+                    </td>
 
-                                    <button
-                                        type="button"
-                                        className="category-action-btn category-delete-btn"
-                                        onClick={() => handleOpenDelete(category)}
-                                    >
-                                        <span className="material-symbols-outlined">
-                                            delete
-                                        </span>
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                    <td className="category-actions">
+                      <button
+                        type="button"
+                        className="category-action-btn category-edit-btn"
+                        onClick={() => handleOpenEdit(parent)}
+                      >
+                        <span className="material-symbols-outlined">
+                          edit
+                        </span>
+                      </button>
 
-            <EditCategoryModal
-                isOpen={isEditOpen}
-                category={selectedCategory}
-                onClose={handleCloseEdit}
-                onSave={handleSaveEdit}
-            />
+                      <button
+                        type="button"
+                        className="category-action-btn category-delete-btn"
+                        onClick={() => handleOpenDelete(parent)}
+                      >
+                        <span className="material-symbols-outlined">
+                          delete
+                        </span>
+                      </button>
+                    </td>
+                  </tr>
 
-            <DeleteCategoryModal
-                isOpen={isDeleteOpen}
-                category={selectedCategory}
-                onClose={handleCloseDelete}
-                onConfirm={handleConfirmDelete}
-            />
-        </>
-    );
+                  {getChildCategories(parent._id).map((child) => (
+                    <tr
+                      key={child._id}
+                      className="category-child-row"
+                    >
+                      <td>
+                        <div className="category-cell category-child-cell">
+                          <span className="category-child-line">
+                            └─
+                          </span>
+
+                          <div className="category-icon-box">
+                            <span className="material-symbols-outlined">
+                              {child.icon ||
+                                "subdirectory_arrow_right"}
+                            </span>
+                          </div>
+
+                          <span className="category-name">
+                            {child.name}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="category-description">
+                        {child.description}
+                      </td>
+
+                      <td className="category-actions">
+                        <button
+                          type="button"
+                          className="category-action-btn category-edit-btn"
+                          onClick={() => handleOpenEdit(child)}
+                        >
+                          <span className="material-symbols-outlined">
+                            edit
+                          </span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="category-action-btn category-delete-btn"
+                          onClick={() => handleOpenDelete(child)}
+                        >
+                          <span className="material-symbols-outlined">
+                            delete
+                          </span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </React.Fragment>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <EditCategoryModal
+        isOpen={isEditOpen}
+        category={selectedCategory}
+        categories={allCategories}
+        onClose={handleCloseEdit}
+        onSave={handleSaveEdit}
+      />
+
+      <DeleteCategoryModal
+        isOpen={isDeleteOpen}
+        category={selectedCategory}
+        onClose={handleCloseDelete}
+        onConfirm={handleConfirmDelete}
+      />
+    </>
+  );
 }

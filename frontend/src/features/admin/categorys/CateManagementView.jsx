@@ -1,28 +1,38 @@
 import { useCategoryManagement } from "./hooks/useCategoryManagement";
+
 import CategoryHeader from "./components/CategoryHeader";
 import CategoryStats from "./components/CategoryStats";
 import CategoryFilter from "./components/CategoryFilter";
 import CategoryTable from "./components/CategoryTable";
 import CategoryPagination from "./components/CategoryPagination";
 import CategoryModal from "./components/CategoryModal";
-import DeleteCategoryModal from "./components/DeleteCategoryModal";
-import EditCategoryModal from "./components/EditCategoryModal";
+
 import "./styles/category.css";
 
 export default function CateManagementView() {
     const {
         categories,
         filteredCategories,
+        paginatedCategories,
+
         searchTerm,
         setSearchTerm,
+
         isOpenModal,
         openModal,
         closeModal,
-        isEditOpen,selectedCategory,
-        handleUpdateCategory ,
-        handleDeleteCategory ,
-        isDeleteOpen
+
+        fetchCategories,
+
+        currentPage,
+        setCurrentPage,
+        itemsPerPage,
     } = useCategoryManagement();
+
+    const handleCloseCreateModal = async () => {
+        closeModal();
+        await fetchCategories();
+    };
 
     return (
         <main className="category-page">
@@ -39,13 +49,24 @@ export default function CateManagementView() {
                 </div>
 
                 <div className="category-table-wrapper">
-                    <CategoryTable categories={filteredCategories} />
-                    <CategoryPagination total={categories.length} />
+                    <CategoryTable
+                        categories={paginatedCategories}
+                        allCategories={filteredCategories}
+                        fetchCategories={fetchCategories}
+                    />
+
+                    <CategoryPagination
+                        total={filteredCategories.length}
+                        currentPage={currentPage}
+                        itemsPerPage={itemsPerPage}
+                        onPageChange={setCurrentPage}
+                    />
                 </div>
             </div>
 
-            {isOpenModal && <CategoryModal onClose={closeModal} />}
-            
+            {isOpenModal && (
+                <CategoryModal onClose={handleCloseCreateModal} />
+            )}
         </main>
     );
 }

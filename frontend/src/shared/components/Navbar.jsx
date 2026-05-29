@@ -72,8 +72,8 @@ function Navbar() {
   const navLinks = [
     
     { name: 'SẢN PHẨM', path: '/products' },
-    { name: 'SÁCH VIỆT NAM', path: '/products?category=sach_viet_nam', hasDropdown: true },
-    { name: 'FOREGIN BOOKS', path: '/products?category=foreign_books' },
+    { name: 'SÁCH VIỆT NAM', path: '/products?category=6a196237765954cad1a84ac6', hasDropdown: true },
+    { name: 'FOREGIN BOOKS', path: '/products?category=6a196590765954cad1a84b45' },
   ];
 
   return (

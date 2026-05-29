@@ -1,7 +1,58 @@
-import React from "react";
-import { categoryTree } from "../config/categoryTree";
+import React, { useEffect, useMemo, useState } from "react";
+import { categoryApi } from "@/features/admin/categorys/api/categoryApi.js";
 
-function ProductCategoryFilter({ handleCategoryToggle, selectedCategories }) {
+function ProductCategoryFilter({
+  handleCategoryToggle,
+  selectedCategories = [],
+}) {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+
+        const data = await categoryApi.fetchCategories();
+
+        setCategories(data || []);
+      } catch (error) {
+        console.log("Lỗi lấy danh mục:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const categoryTree = useMemo(() => {
+    const parentCategories = categories.filter((category) => {
+      return !category.parentId;
+    });
+
+    return parentCategories.map((parent) => {
+      const children = categories.filter((category) => {
+        const categoryParentId =
+          typeof category.parentId === "object"
+            ? category.parentId?._id
+            : category.parentId;
+
+        return categoryParentId === parent._id;
+      });
+
+      return {
+        id: parent._id,
+        label: parent.name,
+        value: parent._id,
+        items: children.map((child) => ({
+          value: child._id,
+          label: child.name,
+        })),
+      };
+    });
+  }, [categories]);
+
   const renderCategoryLink = (item) => {
     const isActive = selectedCategories.includes(item.value);
 
@@ -24,12 +75,28 @@ function ProductCategoryFilter({ handleCategoryToggle, selectedCategories }) {
     );
   };
 
+  if (loading) {
+    return (
+      <section className="space-y-5">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#6B7280]">
+            Danh mục
+          </p>
+          <h2 className="mt-2 text-lg font-semibold text-[#111827]">
+            Đang tải danh mục...
+          </h2>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="space-y-5">
       <div>
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#6B7280]">
           Danh mục
         </p>
+
         <h2 className="mt-2 text-lg font-semibold text-[#111827]">
           Khám phá danh mục
         </h2>
@@ -42,22 +109,23 @@ function ProductCategoryFilter({ handleCategoryToggle, selectedCategories }) {
               {section.label}
             </h3>
 
-            <div className="space-y-4">
-              {section.groups?.map((group) => (
-                <div key={group.label} className="space-y-2">
-                  <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[#6B7280]">
-                    {group.label}
-                  </span>
-                  <div className="space-y-1">{group.items.map(renderCategoryLink)}</div>
-                </div>
-              ))}
-
-              {section.items && (
-                <div className="space-y-1">{section.items.map(renderCategoryLink)}</div>
+            <div className="space-y-1">
+              {section.items.length > 0 ? (
+                section.items.map(renderCategoryLink)
+              ) : (
+                <p className="text-sm text-[#9CA3AF]">
+                  Chưa có danh mục con
+                </p>
               )}
             </div>
           </div>
         ))}
+
+        {categoryTree.length === 0 && (
+          <p className="text-sm text-[#9CA3AF]">
+            Chưa có danh mục nào
+          </p>
+        )}
       </div>
     </section>
   );

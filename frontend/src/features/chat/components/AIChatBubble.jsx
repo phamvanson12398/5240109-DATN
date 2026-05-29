@@ -220,7 +220,7 @@ const AIChatBubble = () => {
                                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-[#561922] rounded-full"></div>
                                 </div>
                                 <div>
-                                    <h3 className="text-white font-serif text-lg font-bold m-0 uppercase tracking-widest">Tobi</h3>
+                                    <h3 className="text-white font-serif text-lg font-bold m-0 uppercase tracking-widest">Góc Sách</h3>
                                 </div>
                             </div>
                             <div className="flex gap-2">

@@ -19,7 +19,23 @@
     font-weight: 850;
     line-height: 1.15;
 }
+.product-category-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
+.product-category-tree strong {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 700;
+}
+
+.product-category-tree span {
+  font-size: 13px;
+  color: #6b7280;
+  padding-left: 8px;
+}
 .products-subtitle {
     margin: 8px 0 0;
     color: #6b7280;

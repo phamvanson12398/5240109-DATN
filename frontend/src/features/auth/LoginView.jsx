@@ -46,7 +46,7 @@ function LoginView() {
         <section className="grid w-full max-w-[1120px] overflow-hidden rounded-xl border border-[#E5E7EB] bg-white shadow-[0_24px_70px_rgba(17,24,39,0.10)] md:grid-cols-[0.95fr_1fr]">
           <div className="relative hidden min-h-[720px] overflow-hidden md:block">
             <img
-              src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1887&auto=format&fit=crop"
+              src="https://images.pexels.com/photos/31608284/pexels-photo-31608284.jpeg?_gl=1*6dzyo5*_ga*MTY1MjM4NTQ2LjE3Nzk2MjE4NDI.*_ga_8JE65Q40S6*czE3Nzk2MjE4NDEkbzEkZzAkdDE3Nzk2MjE4NDEkajYwJGwwJGgw"
               alt="Bộ sưu tập sách nổi bật"
               className="h-full w-full object-cover"
             />

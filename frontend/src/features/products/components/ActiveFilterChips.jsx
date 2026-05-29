@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { PRICE_MAX, PRICE_MIN } from "@/features/products/constants/productFilters.constants";
+import { categoryApi } from "@/features/admin/categorys/api/categoryApi.js";
 
 function ActiveFilterChips({
-  selectedCategories,
+  selectedCategories = [],
   keyword,
   priceRange,
   onCategoryToggle,
@@ -11,8 +12,33 @@ function ActiveFilterChips({
   onClearPrice,
   onClearAll,
 }) {
-  const hasPriceFilter = priceRange.min > PRICE_MIN || priceRange.max < PRICE_MAX;
-  const hasFilters = selectedCategories.length > 0 || keyword || hasPriceFilter;
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await categoryApi.fetchCategories();
+        setCategories(data || []);
+      } catch (error) {
+        console.log("Lỗi lấy danh mục:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const categoryNameMap = useMemo(() => {
+    return categories.reduce((acc, category) => {
+      acc[category._id] = category.name;
+      return acc;
+    }, {});
+  }, [categories]);
+
+  const hasPriceFilter =
+    priceRange.min > PRICE_MIN || priceRange.max < PRICE_MAX;
+
+  const hasFilters =
+    selectedCategories.length > 0 || keyword || hasPriceFilter;
 
   if (!hasFilters) return null;
 
@@ -21,23 +47,30 @@ function ActiveFilterChips({
 
   return (
     <div className="mb-8 flex flex-wrap items-center gap-2">
-      {selectedCategories.map((category) => (
-        <span key={category} className={chipClass}>
-          {category.replace(/-/g, " ")}
-          <button
-            type="button"
-            onClick={() => onCategoryToggle(category)}
-            className="text-[#6B7280] transition hover:text-[#E85D75]"
-            aria-label={`Xóa ${category}`}
-          >
-            <CloseIcon className="!text-[14px]" />
-          </button>
-        </span>
-      ))}
+      {selectedCategories.map((categoryId) => {
+        const categoryName =
+          categoryNameMap[categoryId] || "Danh mục không tồn tại";
+
+        return (
+          <span key={categoryId} className={chipClass}>
+            {categoryName}
+
+            <button
+              type="button"
+              onClick={() => onCategoryToggle(categoryId)}
+              className="text-[#6B7280] transition hover:text-[#E85D75]"
+              aria-label={`Xóa ${categoryName}`}
+            >
+              <CloseIcon className="!text-[14px]" />
+            </button>
+          </span>
+        );
+      })}
 
       {keyword && (
         <span className={chipClass}>
           Tìm: {keyword}
+
           <button
             type="button"
             onClick={onClearKeyword}
@@ -53,6 +86,7 @@ function ActiveFilterChips({
         <span className={chipClass}>
           Giá: {priceRange.min.toLocaleString("vi-VN")} -{" "}
           {priceRange.max.toLocaleString("vi-VN")}
+
           <button
             type="button"
             onClick={onClearPrice}

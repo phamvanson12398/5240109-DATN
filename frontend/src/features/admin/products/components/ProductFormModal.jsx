@@ -10,6 +10,9 @@ import '../styles/ProductFormModal.css';
 function ProductFormModal({ product, onClose, initialData }) {
     const dispatch = useDispatch();
     const isEditMode = !!product;
+    const [level1Categories, setLevel1Categories] = useState([]);
+    const [level2Categories, setLevel2Categories] = useState([]);
+
 
     const [formData, setFormData] = useState({
         name: "",
@@ -24,7 +27,7 @@ function ProductFormModal({ product, onClose, initialData }) {
         categoryLevel2: "",
 
         // sách
-        author:"",
+        author: "",
         publisher: "",
         publishYear: "",
         page: "",
@@ -39,7 +42,28 @@ function ProductFormModal({ product, onClose, initialData }) {
 
         keyword: '',
     });
+    useEffect(() => {
+        const fetchLevel1Categories = async () => {
+            const data = await getLevel1Categories();
+            setLevel1Categories(data);
+        };
 
+        fetchLevel1Categories();
+    }, []);
+
+    useEffect(() => {
+        const fetchLevel2Categories = async () => {
+            if (!formData.categoryLevel1) {
+                setLevel2Categories([]);
+                return;
+            }
+
+            const data = await getLevel2Categories(formData.categoryLevel1);
+            setLevel2Categories(data);
+        };
+
+        fetchLevel2Categories();
+    }, [formData.categoryLevel1]);
     const [imagesPreview, setImagesPreview] = useState([]);
     const [tempTag, setTempTag] = useState({ size: '', color: '' });
     const [discountPercent, setDiscountPercent] = useState(0);
@@ -107,18 +131,13 @@ function ProductFormModal({ product, onClose, initialData }) {
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        if (name === "categoryLevel1") {
-            setFormData((prev) => ({
-                ...prev,
-                categoryLevel1: value,
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+            ...(name === "categoryLevel1" && {
                 categoryLevel2: "",
-            }));
-        } else {
-            setFormData((prev) => ({
-                ...prev,
-                [name]: value,
-            }));
-        }
+            }),
+        }));
     };
 
     const handleImageChange = (e) => {
@@ -248,8 +267,8 @@ function ProductFormModal({ product, onClose, initialData }) {
         // Optional
         myForm.set("level", formData.level || "");
 
-         myForm.set("keyword", formData.keyword || "");
-       
+        myForm.set("keyword", formData.keyword || "");
+
         // Append new images
         formData.images.forEach((image) => {
             myForm.append("images", image);
@@ -311,7 +330,10 @@ function ProductFormModal({ product, onClose, initialData }) {
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <label className="form-label required">Danh mục cấp 1</label>
+                                        <label className="form-label required">
+                                            Danh mục cấp 1
+                                        </label>
+
                                         <select
                                             name="categoryLevel1"
                                             className="form-select"
@@ -320,16 +342,18 @@ function ProductFormModal({ product, onClose, initialData }) {
                                             required
                                         >
                                             <option value="">Chọn cấp 1</option>
-                                            {getLevel1Categories().map(cat => (
-                                                <option key={cat.value} value={cat.value}>{cat.label}</option>
+
+                                            {level1Categories.map((cat) => (
+                                                <option key={cat.value} value={cat.value}>
+                                                    {cat.label}
+                                                </option>
                                             ))}
                                         </select>
                                     </div>
 
-
                                     <div
                                         className="form-group"
-                                        style={{ marginTop: '10px' }}
+                                        style={{ marginTop: "10px" }}
                                     >
                                         <label className="form-label required">
                                             Danh mục cấp 2
@@ -343,21 +367,13 @@ function ProductFormModal({ product, onClose, initialData }) {
                                             required
                                             disabled={!formData.categoryLevel1}
                                         >
-                                            <option value="">
-                                                Chọn cấp 2
-                                            </option>
+                                            <option value="">Chọn cấp 2</option>
 
-                                            {getLevel2Categories(formData.categoryLevel1)
-                                                .map((cat) => (
-
-                                                    <option
-                                                        key={cat.value}
-                                                        value={cat.value}
-                                                    >
-                                                        {cat.label}
-                                                    </option>
-
-                                                ))}
+                                            {level2Categories.map((cat) => (
+                                                <option key={cat.value} value={cat.value}>
+                                                    {cat.label}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
 

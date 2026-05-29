@@ -21,7 +21,7 @@ import ProductFormModal from '@/features/admin/products/components/ProductFormMo
 import ImportProductModal from '@/features/admin/products/components/ImportProductModal';
 import StockManagement from '@/features/admin/products/components/StockManagement';
 import { BOOK_GENRE_OPTIONS } from '@/shared/constants/aiSettings';
-
+import { categoryApi } from "@/features/admin/categorys/api/categoryApi.js";
 /**
  * ProductsManagement - Nội dung trang quản lý sản phẩm (không có layout)
  */
@@ -34,6 +34,20 @@ function ProductsManagementView() {
     const [initialFormData, setInitialFormData] = useState(null);
     const [activeTab, setActiveTab] = useState('list'); // 'list' | 'stock'
     const [filterStyle, setFilterStyle] = useState('');
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const data = await categoryApi.fetchCategories();
+                setCategories(data || []);
+            } catch (error) {
+                console.log("Lỗi lấy category:", error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
 
     // Fetch products khi component mount
     useEffect(() => {
@@ -76,14 +90,30 @@ function ProductsManagementView() {
     const handleImportSuccess = () => {
         dispatch(fetchAllProducts());
     };
+    const getCategoryNameById = (categoryId) => {
+        const id =
+            typeof categoryId === "object"
+                ? categoryId?._id
+                : categoryId;
 
-    const getProductCategory = (product) => {
-        if (typeof product.category === 'object') {
-            return product.category?.level1 || 'Chưa phân loại';
-        }
-        return product.category || 'Chưa phân loại';
+        const category = categories.find((item) => item._id === id);
+        
+        return category?.name || "Chưa có danh mục";
     };
 
+    const getProductCategory = (product) => {
+        
+        
+        const level1Name = getCategoryNameById(product.category.level1);
+        const level2Name = getCategoryNameById(product.category.level2);
+
+        return (
+            <div className="product-category-tree">
+                <strong>{level1Name}</strong>
+                <span>└─ {level2Name}</span>
+            </div>
+        );
+    };
     const getProductCode = (product) => {
         return product.sku || product._id?.slice(-8)?.toUpperCase() || 'NO-ID';
     };
@@ -233,7 +263,7 @@ function ProductsManagementView() {
                                                 </div>
                                             </td>
                                             <td className="product-price">{formatVND(product.price)}</td>
-                                            
+
                                             <td className="product-category">{getProductCategory(product)}</td>
                                             <td>
                                                 <span className={`product-stock-badge ${product.stock < 10 ? 'low' : ''}`} >
@@ -241,7 +271,7 @@ function ProductsManagementView() {
                                                 </span>
                                             </td>
                                             <td>
-                                                <span className={`product-sold-badge ${product.stock < 10 ? 'low' : ''}`} style={{color: "green"}}>
+                                                <span className={`product-sold-badge ${product.stock < 10 ? 'low' : ''}`} style={{ color: "green" }}>
                                                     {product.sold}
                                                 </span>
                                             </td>

@@ -15,6 +15,7 @@ import cart from './routes/cartRoutes.js';
 import vouchers from './routes/promoRoutes.js';
 import notifications from './routes/notificationRoutes.js';
 import userVouchers from './routes/userVoucherRoutes.js';
+import categorys from './routes/categoryRoutes.js';
 
 import errorHandleMiddleware from './middleware/error.js';
 import cookieParser from 'cookie-parser';
@@ -97,7 +98,7 @@ app.use("/api/v1/ai", aiAssistant);
 app.use("/api/v1/vouchers", vouchers);
 app.use("/api/v1/user-vouchers", userVouchers);
 app.use("/api/v1/notifications", notifications);
-
+app.use("/api/v1/categories", categorys);
 app.use(errorHandleMiddleware);
 
 export default app;
