@@ -1,6 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 
-import AppBootstrap from "@/app/bootstrap/AppBootstrap";
+import AppBootstrap from "@/app/bootstrap/Appbootstrap";
 import AppOverlays from "@/app/components/AppOverlays";
 import AppRoutes from "@/app/routes";
 
