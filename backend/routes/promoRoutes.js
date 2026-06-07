@@ -4,8 +4,27 @@ import { validateVoucher } from '../utils/voucherValidator.js';
 import { verifyUserAuth } from '../middleware/userAuth.js';
 import { isAuthenticatedAdmin } from '../middleware/adminAuth.js';
 import asyncErrorHandler from "../middleware/handleAsyncError.js";
+import Notification from '../models/notificationModel.js';
 
 const router = express.Router();
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+const parseListQuery = (value) => {
+  if (!value) return [];
+  const list = Array.isArray(value) ? value : String(value).split(',');
+  return list.map((item) => item.trim()).filter(Boolean);
+};
+
+const addDateRange = (query, field, from, to) => {
+  if (!from && !to) return;
+  query[field] = { ...(query[field] || {}) };
+  if (from) query[field].$gte = new Date(from);
+  if (to) {
+    const end = new Date(to);
+    end.setHours(23, 59, 59, 999);
+    query[field].$lte = end;
+  }
+};
 
 // 1. Áp dụng Voucher (Dành cho Client / Checkout)
 const applyVoucherPreview = asyncErrorHandler(async (req, res, next) => {
@@ -23,8 +42,30 @@ const applyVoucherPreview = asyncErrorHandler(async (req, res, next) => {
 
   const result = await validateVoucher(voucher, user, itemPrice);
   res.status(200).json({ 
-    success: result.isValid, 
-    ...result 
+    success: result.isValid,
+    isValid: result.isValid,
+    message: result.message,
+    discountAmount: result.discount, // Chuyển từ discount sang discountAmount để khớp FE
+    voucherCode: voucher.code,       // Trả về code để FE hiển thị
+    voucher_id: voucher._id,         // Thêm ID để FE lưu trữ và gửi lên khi tạo order
+    voucherType: voucher.discount.type,
+    voucherValue: voucher.discount.value
+  });
+});
+
+// 1b. Lấy danh sách Voucher đang hoạt động (Dành cho Client hiển thị trong Giỏ hàng)
+const getActiveVouchers = asyncErrorHandler(async (req, res, next) => {
+  const now = new Date();
+  const vouchers = await Voucher.find({
+    status: 'active',
+    'targeting.isPublic': true,
+    'conditions.startDate': { $lte: now },
+    'conditions.endDate': { $gte: now }
+  }).sort({ createdAt: -1 });
+
+  res.status(200).json({
+    success: true,
+    vouchers
   });
 });
 
@@ -37,6 +78,26 @@ const createVoucher = asyncErrorHandler(async (req, res, next) => {
   }
   
   const voucher = await Voucher.create(voucherData);
+
+  // TỰ ĐỘNG TẠO THÔNG BÁO CHO NGƯỜI DÙNG (CHỈ DÀNH CHO VOUCHER PHỔ THÔNG & CÔNG KHAI)
+  try {
+    const isGeneral = voucher.type === 'general';
+    const isPublic = voucher.targeting && voucher.targeting.isPublic;
+
+    if (isGeneral && isPublic) {
+      await Notification.create({
+        userId: null, // Thông báo chung cho mọi người
+        title: '🎁 Mã giảm giá mới cực hời!',
+        message: `Tobi Shop vừa tung mã [${voucher.code}] giảm ${voucher.discount.type === 'percentage' ? `${voucher.discount.value}%` : `${voucher.discount.value.toLocaleString('vi-VN')}₫`}. Dùng ngay kẻo lỡ!`,
+        type: 'promotion',
+        link: '/cart'
+      });
+    }
+  } catch (error) {
+    console.error("Lỗi khi tạo thông báo Voucher:", error.message);
+    // Không chặn luồng trả về voucher cho Admin
+  }
+
   res.status(201).json({ 
     success: true, 
     voucher 
@@ -77,7 +138,10 @@ const getAllVouchers = asyncErrorHandler(async (req, res, next) => {
     limit = 10
   } = req.query;
   
-  let query = {};
+  const now = new Date();
+  const soon = new Date(now.getTime() + 7 * ONE_DAY_MS);
+  const query = {};
+  const andConditions = [];
 
   // Tìm kiếm theo mã (Search by code) - hỗ trợ Regex không phân biệt hoa thường
   if (search) {
@@ -86,7 +150,7 @@ const getAllVouchers = asyncErrorHandler(async (req, res, next) => {
 
   // Lọc theo trạng thái (status) nâng cao
   if (status) {
-    const statusArray = Array.isArray(status) ? status : status.split(',');
+    const statusArray = parseListQuery(status);
     
     const statusQueries = [];
 
@@ -94,27 +158,46 @@ const getAllVouchers = asyncErrorHandler(async (req, res, next) => {
       statusQueries.push({ status: 'disabled' });
     }
     if (statusArray.includes('active')) {
-      statusQueries.push({ status: 'active' });
+      statusQueries.push({
+        status: 'active',
+        'conditions.startDate': { $lte: now },
+        'conditions.endDate': { $gte: now }
+      });
     }
-    if (statusArray.includes('unused')) {
-      statusQueries.push({ usedCount: 0 });
-    }
-    if (statusArray.includes('used')) {
-      statusQueries.push({ usedCount: { $gt: 0 } });
+    if (statusArray.includes('near_expired')) {
+      statusQueries.push({
+        status: 'active',
+        'conditions.endDate': { $gte: now, $lte: soon }
+      });
     }
     if (statusArray.includes('expired')) {
-      statusQueries.push({ 'conditions.endDate': { $lt: new Date() } });
+      statusQueries.push({ 'conditions.endDate': { $lt: now } });
     }
 
     if (statusQueries.length > 0) {
-      query.$or = statusQueries;
+      andConditions.push({ $or: statusQueries });
     }
   }
 
   // Lọc theo loại voucher (type)
   if (type) {
-    const typeArray = Array.isArray(type) ? type : type.split(',');
-    query.type = { $in: typeArray };
+    const typeArray = parseListQuery(type);
+    const discountTypes = typeArray.filter((item) => ['fixed', 'percentage'].includes(item));
+    const typeQueries = [];
+
+    if (discountTypes.length > 0) {
+      typeQueries.push({ 'discount.type': { $in: discountTypes } });
+    }
+
+    if (typeArray.includes('shipping')) {
+      typeQueries.push({ type: 'shop' });
+    }
+
+    if (typeQueries.length === 1) {
+      Object.assign(query, typeQueries[0]);
+    } else if (typeQueries.length > 1) {
+      andConditions.push({ $or: typeQueries });
+    }
   }
 
   // Lọc theo giá trị giảm (discount.value)
@@ -125,25 +208,13 @@ const getAllVouchers = asyncErrorHandler(async (req, res, next) => {
   }
 
   // Lọc theo ngày tạo (createdAt)
-  if (startDate || endDate) {
-    query.createdAt = {};
-    if (startDate) query.createdAt.$gte = new Date(startDate);
-    if (endDate) {
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
-      query.createdAt.$lte = end;
-    }
-  }
+  addDateRange(query, 'createdAt', startDate, endDate);
 
   // Lọc theo ngày hết hạn (conditions.endDate)
-  if (expiryStart || expiryEnd) {
-    query['conditions.endDate'] = {};
-    if (expiryStart) query['conditions.endDate'].$gte = new Date(expiryStart);
-    if (expiryEnd) {
-      const endEx = new Date(expiryEnd);
-      endEx.setHours(23, 59, 59, 999);
-      query['conditions.endDate'].$lte = endEx;
-    }
+  addDateRange(query, 'conditions.endDate', expiryStart, expiryEnd);
+
+  if (andConditions.length > 0) {
+    query.$and = andConditions;
   }
 
   // Pagination Logic
@@ -200,8 +271,10 @@ const deleteVoucher = asyncErrorHandler(async (req, res, next) => {
 });
 
 // ROUTES DEFINITION
+router.route('/all').get(getActiveVouchers);
+router.route('/active').get(getActiveVouchers);
 router.route('/apply').post(verifyUserAuth, applyVoucherPreview);
-router.route('/all').get( getAllVouchers);
+
 // Admin Routes
 router.route('/admin').get(isAuthenticatedAdmin, getAllVouchers);
 router.route('/admin/new').post(isAuthenticatedAdmin, createVoucher);

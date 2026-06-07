@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 function NewArrivalSection({ products = [], loading }) {
+  const MotionH2 = motion.h2;
+  const MotionP = motion.p;
+  const MotionDiv = motion.div;
+
   return (
     <section className="section-spacing bg-white">
       <div className="max-w-[1440px] mx-auto px-8">

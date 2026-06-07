@@ -13,6 +13,7 @@ import UsersManagement from "@/features/admin/users/UsersManagementView";
 import VouchersManagement from "@/features/admin/vouchers/VouchersManagementView";
 import Home from "@/features/home/HomeView";
 import Products from "@/features/products/ProductListView";
+import FlashSalesManagement from "@/features/admin/flash-sales/FlashSalesManagementView";
 import Addresses from "@/features/address/AddressesView";
 import Notifications from "@/features/notifications/NotificationsView";
 import Profile from "@/features/user/ProfileView";
@@ -220,6 +221,7 @@ function AppRoutes() {
         <Route path="users" element={<UsersManagement />} />
         <Route path="vouchers" element={<VouchersManagement />} />
         <Route path="categories" element={<CatePageView />} />
+        <Route path="flash-sales" element={<FlashSalesManagement />} />
 
         <Route path="settings" element={<Settings />} />
       </Route>

@@ -3,6 +3,13 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { logout } from '@/features/user/userSlice';
+import {
+  fetchNotifications,
+  markAllRead,
+  markAsRead,
+  readAllLocal,
+  readLocal,
+} from '@/features/notifications/notificationSlice';
 import { toast } from 'react-toastify';
 import BrandLogo from '@/shared/components/BrandLogo';
 
@@ -68,9 +75,21 @@ function Navbar() {
         toast.error(err.message || "Đăng xuất thất bại");
       });
   };
+  const handleNotificationClick = (item) => {
+    if (!item?._id || item.isRead) return;
 
+    dispatch(readLocal(item._id));
+    dispatch(markAsRead(item._id));
+  };
+
+  const handleViewNotifications = () => {
+    if (!isAuthenticated || unreadCount <= 0) return;
+
+    dispatch(readAllLocal());
+    dispatch(markAllRead());
+  };
   const navLinks = [
-    
+
     { name: 'SẢN PHẨM', path: '/products' },
     { name: 'SÁCH VIỆT NAM', path: '/products?category=6a196237765954cad1a84ac6', hasDropdown: true },
     { name: 'FOREGIN BOOKS', path: '/products?category=6a196590765954cad1a84b45' },
@@ -78,12 +97,11 @@ function Navbar() {
 
   return (
     <>
-      <nav 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled 
-            ? "bg-white/90 backdrop-blur-md border-b border-slate-200/60 py-3 shadow-soft" 
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
+            ? "bg-white/90 backdrop-blur-md border-b border-slate-200/60 py-3 shadow-soft"
             : "bg-white/72 backdrop-blur-xl border-b border-white/60 py-4 shadow-[0_12px_30px_rgba(15,23,42,0.08)]"
-        }`}
+          }`}
       >
         <div className="max-w-[1280px] mx-auto px-6">
           <div className="flex items-center justify-between">
@@ -94,23 +112,21 @@ function Navbar() {
             <ul className="hidden lg:flex items-center gap-10">
               {navLinks.map((link) => (
                 <li key={link.path}>
-                  <Link 
-                    to={link.path} 
-                    className={`text-[12px] font-bold tracking-widest transition-all duration-300 relative group flex items-center gap-1 ${
-                      isActive(link.path) 
-                        ? "text-primary" 
+                  <Link
+                    to={link.path}
+                    className={`text-[12px] font-bold tracking-widest transition-all duration-300 relative group flex items-center gap-1 ${isActive(link.path)
+                        ? "text-primary"
                         : isScrolled
                           ? "text-text-secondary hover:text-primary"
                           : "text-slate-700 hover:text-primary"
-                    }`}
+                      }`}
                   >
                     {link.name}
                     {link.hasDropdown && (
                       <ExpandMoreIcon className="!text-[14px] transition-transform group-hover:rotate-180" />
                     )}
-                    <span className={`absolute -bottom-1 left-0 h-[2px] bg-accent transition-all duration-500 ${
-                      isActive(link.path) ? "w-full" : "w-0 group-hover:w-full"
-                    }`} />
+                    <span className={`absolute -bottom-1 left-0 h-[2px] bg-accent transition-all duration-500 ${isActive(link.path) ? "w-full" : "w-0 group-hover:w-full"
+                      }`} />
                   </Link>
                 </li>
               ))}
@@ -123,9 +139,8 @@ function Navbar() {
                   <input
                     type="text"
                     placeholder="Tìm kiếm sách..."
-                    className={`bg-slate-100/50 border border-transparent text-sm py-2 px-4 rounded-pill focus:outline-none focus:bg-white focus:border-accent/30 transition-all duration-300 w-48 focus:w-72 shadow-inner ${
-                      isScrolled ? "text-primary" : "text-primary"
-                    }`}
+                    className={`bg-slate-100/50 border border-transparent text-sm py-2 px-4 rounded-pill focus:outline-none focus:bg-white focus:border-accent/30 transition-all duration-300 w-48 focus:w-72 shadow-inner ${isScrolled ? "text-primary" : "text-primary"
+                      }`}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -134,8 +149,8 @@ function Navbar() {
               </div>
 
               <div className="flex items-center gap-3">
-                <Link 
-                  to="/notifications" 
+                <Link
+                  to="/notifications"
                   className="relative p-2.5 bg-slate-100 hover:bg-accent/10 rounded-full transition-all group text-primary"
                 >
                   <NotificationsIcon className="group-hover:text-accent transition-colors !text-[24px]" />
@@ -145,8 +160,8 @@ function Navbar() {
                     </span>
                   )}
                 </Link>
-                <Link 
-                  to="/cart" 
+                <Link
+                  to="/cart"
                   className="relative p-2.5 bg-slate-100 hover:bg-accent/10 rounded-full transition-all group text-primary"
                 >
                   <ShoppingBagIcon className="group-hover:text-accent transition-colors !text-[24px]" />
@@ -159,13 +174,13 @@ function Navbar() {
 
                 {isAuthenticated ? (
                   <div className="relative">
-                    <button 
+                    <button
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                       className="flex items-center gap-2.5 p-1 pl-1 pr-3 bg-slate-100/80 hover:bg-slate-200 transition-all rounded-full group border border-transparent hover:border-slate-200"
                     >
                       <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm bg-white">
-                        <img 
-                          src={user?.avatar?.url || '/images/profile.png'} 
+                        <img
+                          src={user?.avatar?.url || '/images/profile.png'}
                           alt={user?.name}
                           className="w-full h-full object-cover"
                         />
@@ -183,12 +198,12 @@ function Navbar() {
                     <AnimatePresence>
                       {isUserMenuOpen && (
                         <>
-                          <motion.div 
+                          <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-10" 
-                            onClick={() => setIsUserMenuOpen(false)} 
+                            className="fixed inset-0 z-10"
+                            onClick={() => setIsUserMenuOpen(false)}
                           />
                           <motion.div
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -198,8 +213,8 @@ function Navbar() {
                           >
                             <div className="px-4 py-4 border-b border-slate-50 mb-2 flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-100">
-                                <img 
-                                  src={user?.avatar?.url || '/images/profile.png'} 
+                                <img
+                                  src={user?.avatar?.url || '/images/profile.png'}
                                   alt={user?.name}
                                   className="w-full h-full object-cover"
                                 />
@@ -209,10 +224,10 @@ function Navbar() {
                                 <p className="text-[10px] font-medium text-slate-400 truncate">{user?.email}</p>
                               </div>
                             </div>
-                            
+
                             {(user?.role === 'admin' || user?.role_id?.name === 'admin' || user?.role === 'staff' || user?.role_id?.name === 'staff') && (
-                              <Link 
-                                to="/admin/dashboard" 
+                              <Link
+                                to="/admin/dashboard"
                                 className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-accent bg-accent/5 hover:bg-accent/10 rounded-xl transition-all mb-1"
                                 onClick={() => setIsUserMenuOpen(false)}
                               >
@@ -221,8 +236,8 @@ function Navbar() {
                               </Link>
                             )}
 
-                            <Link 
-                              to="/profile" 
+                            <Link
+                              to="/profile"
                               className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-primary rounded-xl transition-all"
                               onClick={() => setIsUserMenuOpen(false)}
                             >
@@ -230,8 +245,8 @@ function Navbar() {
                               <span>Hồ sơ cá nhân</span>
                             </Link>
 
-                            <Link 
-                              to="/orders/user" 
+                            <Link
+                              to="/orders/user"
                               className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-primary rounded-xl transition-all"
                               onClick={() => setIsUserMenuOpen(false)}
                             >
@@ -239,8 +254,8 @@ function Navbar() {
                               <span>Đơn hàng của tôi</span>
                             </Link>
 
-                            <Link 
-                              to="/password/update" 
+                            <Link
+                              to="/password/update"
                               className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-primary rounded-xl transition-all"
                               onClick={() => setIsUserMenuOpen(false)}
                             >
@@ -250,7 +265,7 @@ function Navbar() {
 
                             <div className="h-px bg-slate-50 my-2" />
 
-                            <button 
+                            <button
                               onClick={handleLogout}
                               className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition-all"
                             >
@@ -263,8 +278,8 @@ function Navbar() {
                     </AnimatePresence>
                   </div>
                 ) : (
-                  <Link 
-                    to="/login" 
+                  <Link
+                    to="/login"
                     className="p-2.5 bg-slate-100 hover:bg-accent/10 rounded-full transition-all group text-primary"
                   >
                     <PersonIcon className="group-hover:text-accent transition-colors !text-[24px]" />
@@ -287,7 +302,7 @@ function Navbar() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -303,7 +318,7 @@ function Navbar() {
             >
               <div className="flex items-center justify-between mb-16">
                 <span className="text-2xl font-black text-primary tracking-tighter">DANH MỤC</span>
-                <button 
+                <button
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="p-2 hover:bg-slate-50 rounded-full transition-colors"
                 >
@@ -315,11 +330,10 @@ function Navbar() {
                 <ul className="space-y-8">
                   {navLinks.map((link) => (
                     <li key={link.path}>
-                      <Link 
-                        to={link.path} 
-                        className={`text-2xl font-black tracking-tight flex items-center justify-between group ${
-                          isActive(link.path) ? "text-accent" : "text-primary"
-                        }`}
+                      <Link
+                        to={link.path}
+                        className={`text-2xl font-black tracking-tight flex items-center justify-between group ${isActive(link.path) ? "text-accent" : "text-primary"
+                          }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <div className="flex items-center gap-2">
@@ -334,8 +348,9 @@ function Navbar() {
               </nav>
 
               <div className="pt-10 border-t border-slate-100 flex flex-col gap-6">
-                <Link 
-                  to="/notifications" 
+                <Link
+                  to="/notifications"
+                  onClick={handleViewNotifications}
                   className="flex items-center justify-between text-primary font-black"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -346,8 +361,8 @@ function Navbar() {
                   </div>
                 </Link>
 
-                <Link 
-                  to="/cart" 
+                <Link
+                  to="/cart"
                   className="flex items-center justify-between text-primary font-black"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -361,8 +376,8 @@ function Navbar() {
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl">
                       <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm">
-                        <img 
-                          src={user?.avatar?.url || '/images/profile.png'} 
+                        <img
+                          src={user?.avatar?.url || '/images/profile.png'}
                           alt={user?.name}
                           className="w-full h-full object-cover"
                         />
@@ -373,8 +388,8 @@ function Navbar() {
                       </div>
                     </div>
                     {(user?.role === 'admin' || user?.role_id?.name === 'admin') && (
-                      <Link 
-                        to="/admin/dashboard" 
+                      <Link
+                        to="/admin/dashboard"
                         className="w-full py-4 text-sm font-black uppercase tracking-widest text-accent bg-accent/5 border border-accent/20 text-center rounded-xl flex items-center justify-center gap-2"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
@@ -384,28 +399,28 @@ function Navbar() {
                     )}
 
                     <div className="grid grid-cols-2 gap-3">
-                      <Link 
-                        to="/profile" 
+                      <Link
+                        to="/profile"
                         className="py-4 text-[10px] font-black uppercase tracking-widest text-primary border border-slate-100 text-center rounded-xl hover:bg-slate-50 transition-colors"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Hồ sơ
                       </Link>
-                      <Link 
-                        to="/orders/user" 
+                      <Link
+                        to="/orders/user"
                         className="py-4 text-[10px] font-black uppercase tracking-widest text-primary border border-slate-100 text-center rounded-xl hover:bg-slate-50 transition-colors"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Đơn hàng
                       </Link>
-                      <Link 
-                        to="/password/update" 
+                      <Link
+                        to="/password/update"
                         className="py-4 text-[10px] font-black uppercase tracking-widest text-primary border border-slate-100 text-center rounded-xl hover:bg-slate-50 transition-colors"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Mật khẩu
                       </Link>
-                      <button 
+                      <button
                         onClick={handleLogout}
                         className="bg-red-50 text-red-500 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-center hover:bg-red-100 transition-colors"
                       >
@@ -414,8 +429,8 @@ function Navbar() {
                     </div>
                   </div>
                 ) : (
-                  <Link 
-                    to="/login" 
+                  <Link
+                    to="/login"
                     className="w-full bg-primary text-white py-5 rounded-none text-xs font-black uppercase tracking-widest text-center shadow-2xl shadow-primary/20"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >

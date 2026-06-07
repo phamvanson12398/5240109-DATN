@@ -63,7 +63,7 @@ class APIFunctionality {
 
         // Bước 3: Xử lý stock=true → chỉ lấy sản phẩm còn hàng
         if (queryCopy.stock === "true") {
-            queryCopy.stock = { $gt: 0 };
+            queryCopy.stock = { gt: 0 };
         } else {
             delete queryCopy.stock;
         }
@@ -88,7 +88,9 @@ class APIFunctionality {
             }
         };
         convertToNumber(queryObj);
-
+        console.log("QUERY OBJ:", queryObj);
+        console.log("CATEGORY QUERY:", categoryQuery);
+        console.log("FINAL FILTER:", { ...queryObj, ...categoryQuery });
         // Merge category query (đã map) với các filter khác
         this.query = this.query.find({ ...queryObj, ...categoryQuery });
         return this;

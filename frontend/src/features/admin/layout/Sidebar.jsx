@@ -2,6 +2,7 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import FlashOnOutlinedIcon from '@mui/icons-material/FlashOnOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
@@ -19,6 +20,7 @@ const navItems = [
     { name: 'Người dùng', icon: <GroupOutlinedIcon />, path: '/admin/users' },
     { name: 'Mã giảm giá', icon: <LocalOfferOutlinedIcon />, path: '/admin/vouchers' },
     { name: 'Danh mục', icon: <CategoryOutlinedIcon  />, path: '/admin/categories' },
+    { name: 'Flash Sale', icon: <FlashOnOutlinedIcon />, path: '/admin/flash-sales' },
     { name: 'Cài đặt', icon: <SettingsOutlinedIcon />, path: '/admin/settings' },
 ];
 
@@ -43,18 +45,6 @@ export default function Sidebar({ user }) {
                 </span>
             </Link>
 
-            {/* <nav className="admin-sidebar-nav">
-                {navItems.map((item) => (
-                    <NavLink
-                        key={item.name}
-                        to={item.path}
-                        className={({ isActive }) => `admin-sidebar-link ${isActive ? 'active' : ''}`}
-                    >
-                        <span className="admin-sidebar-icon">{item.icon}</span>
-                        <span className="admin-sidebar-label">{item.name}</span>
-                    </NavLink>
-                ))}
-            </nav> */}
 
 
 

@@ -55,7 +55,7 @@
  */
 import React, { useState, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
-import axios from "axios";
+import axios from "@/shared/api/http.js";
 import { FiArrowLeft, FiCamera, FiVideo, FiInfo, FiAlertCircle, FiCheck, FiChevronRight } from "react-icons/fi";
 import { FaStar, FaCoins } from "react-icons/fa";
 import "@/features/orders/styles/ReviewComment.css";
@@ -156,7 +156,10 @@ function ReviewComment({ isOpen, onClose, product, orderId, onSuccess }) {
     }, []);
 
     const handleSubmit = useCallback(async () => {
-        if (!product?._id) return;
+        if (!product?._id) {
+            setError("KhÃ´ng xÃ¡c Ä‘á»‹nh Ä‘Æ°á»£c sáº£n pháº©m cáº§n Ä‘Ã¡nh giÃ¡");
+            return;
+        }
         if (rating === 0) {
             setError("Vui lòng chọn số sao đánh giá");
             return;

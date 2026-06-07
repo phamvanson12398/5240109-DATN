@@ -5,7 +5,7 @@ export default (err, req, res, next) => {
     err.message = err.message || "May chu gap su co, vui long thu lai sau";
 
     if (err.name === "CastError") {
-        const message = `Khong tim thay: ${err.path}`;
+        const message = `Khong tim thay : ${err.path}`;
         err = new HandleError(message, 404);
     }
 

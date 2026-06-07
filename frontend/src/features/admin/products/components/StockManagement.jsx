@@ -1,58 +1,5 @@
-/**
- * 1. FILE NÀY LÀ GÌ: 
- *    Đây là Màn Hình Quản Lý Nhập Và Tồn Kho (Stock Management).
- * 
- * 2. VAI TRÒ TRONG DỰ ÁN:
- *    - Đóng vai trò là "Thủ kho số". Giúp Admin kiểm soát chính xác số lượng hàng hóa đang có trong hệ thống.
- *    - Cung cấp 2 giải pháp nhập hàng linh hoạt: 
- *      + Giải pháp A: Nhập hàng loạt từ Excel (Phù hợp khi nhập kho định kỳ số lượng lớn).
- *      + Giải pháp B: Tra cứu và cập nhật nhanh từng sản phẩm (Phù hợp khi điều chỉnh kho lẻ).
- * 
- * 3. FILE NÀY THUỘC LUỒNG NÀO:
- *    - Luồng Quản trị Kho hàng & Chuỗi cung ứng (Inventory & Supply Chain Management).
- * 
- * 4. KIẾN THỨC / KỸ THUẬT ĐANG DÙNG:
- *    - SheetJS (XLSX): Tương tự Import sản phẩm nhưng logic ở đây chỉ quan tâm đến `name` và `quantity`. Chuyển đổi file Excel sang mảng JSON để xử lý.
- *    - Advanced Feedback Loop: Sau khi Import, Server trả về một Object `importResult` cực kỳ chi tiết bao gồm: Những SP đã cập nhật (có số `oldStock`, `newStock`) và những SP "Không tìm thấy".
- *    - Quick Action Integration (Lifting State Up): Một kỹ thuật hay! Nếu SP trong file Excel không tồn tại, hệ thống cung cấp nút "➕ Thêm mới". Khi bấm, nó sẽ gọi prop `onAddNew` truyền tên SP lên trang Cha để mở Modal tạo mới với tên đã có sẵn.
- *    - Single-Item Quick Update: Sử dụng một Object state `stockInputs` để quản lý cùng lúc nhiều ô Input số lượng trong bảng tìm kiếm. Mỗi ID sản phẩm sẽ là một Key trong Object (`{ product_id: quantity }`).
- *    - Real-time Stock Badge: Hiển thị trạng thái kho (Xanh/Đỏ). Nếu kho < 10, nhãn sẽ chuyển sang màu đỏ (`low` class) để cảnh báo Admin sắp hết hàng.
- * 
- * 5. INPUT / OUTPUT CỦA FILE:
- *    - Input: File Excel nhập kho hoặc Từ khóa tìm kiếm tên sản phẩm.
- *    - Output: Số lượng `stock` trong Database được tăng thêm tương ứng với số lượng nhập vào.
- * 
- * 6. STATE / PROPS / PARAMS / ... : 
- *    - `stockPreview`: Dữ liệu "tạm" từ file Excel hiện lên bảng cho Admin xem trước.
- *    - `importResult`: Dữ liệu "đối soát" từ Server trả về sau khi lưu thành công.
- *    - `stockInputs`: Lưu giá trị Admin đang gõ trong các ô nhập số lượng ở phần Tìm kiếm thủ công.
- * 
- * 7. CÁC HÀM / CHỨC NĂNG CHÍNH:
- *    - `handleImportStock`: Đẩy mảng dữ liệu nhập kho lên API Xử lý hàng loạt (Bulk Update).
- *    - `handleUpdateStock`: Cập nhật tồn kho cho đúng 1 sản phẩm đang chọn.
- *    - `handleSearch`: Gọi API tìm kiếm sản phẩm trong kho dữ liệu Admin.
- * 
- * 8. LUỒNG HOẠT ĐỘNG TỪNG BƯỚC:
- *    - Cách 1 (Excel): Chọn file -> Xem bản xem trước -> Bấm "Import" -> Nhận bảng kết quả đối soát kho cũ/mới.
- *    - Cách 2 (Manual): Gõ tên SP -> Bấm Tìm -> Thấy SP trong bảng -> Gõ số lượng nhập thêm (vd: 50) -> Bấm nút Check xanh -> Kho tự nhảy số.
- * 
- * 9. LUỒNG REQUEST / RESPONSE / DATABASE:
- *    - Request Bulk: `POST /api/v1/admin/products/import-stock`.
- *    - Request Single: `PUT /api/v1/admin/products/update-stock/:id`.
- * 
- * 10. RENDER / ĐIỀU KIỆN / VALIDATE / PHÂN QUYỀN: 
- *    - Validation: File Excel bắt buộc có cột `name` và `quantity`. Số lượng nhập phải là số dương (> 0).
- *    - Report UI: Chỉ hiển thị bảng đối soát `importResult` sau khi đã có phản hồi từ Server.
- * 
- * 11. PHẦN BẤT ĐỒNG BỘ TRONG FILE:
- *    - Đọc file Excel bằng `FileReader`.
- *    - Các thao tác Dispatch Thunk (Search, Import, Update) với xử lý `unwrap()` để bắt lỗi API.
- * 
- * 12. ĐIỂM QUAN TRỌNG KHI ĐỌC HOẶC SỬA FILE:
- *    - Khái niệm "Cộng dồn" (Accumulate): Khác với ghi đè, logic ở đây là `Tồn mới = Tồn cũ + Số lượng nhập`. Đây là logic nghiệp vụ thực tế của việc nhập hàng về kho.
- *    - Nút "Thêm mới" trong danh sách "Không tìm thấy": Đây là điểm nhấn UX, giúp Admin xử lý các mã hàng mới phát sinh ngay trong quá trình kiểm kho mà không cần chuyển đổi màn hình phức tạp.
- */
-import React, { useState, useRef } from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { importStock, updateSingleStock } from '@/features/admin/state/adminSlice';
 import { selectAdminProducts } from '@/features/admin/state/adminSelectors';
@@ -95,7 +42,21 @@ function StockManagement({ onAddNew }) {
     // Manual update states
     const [searchQuery, setSearchQuery] = useState('');
     const [stockInputs, setStockInputs] = useState({}); // { productId: quantity }
+    useEffect(() => {
+        if (!importResult?.notFound?.length || products.length === 0) return;
 
+        const existingProductNames = new Set(products.map((product) => normalizeSearchText(product.name)));
+        const remainingNotFound = importResult.notFound.filter(
+            (item) => !existingProductNames.has(normalizeSearchText(item.name))
+        );
+
+        if (remainingNotFound.length !== importResult.notFound.length) {
+            setImportResult((prev) => ({
+                ...prev,
+                notFound: remainingNotFound,
+            }));
+        }
+    }, [importResult, products]);
     // ===== IMPORT STOCK FROM FILE =====
     const handleStockFileChange = (e) => {
         const file = e.target.files[0];
@@ -155,104 +116,75 @@ function StockManagement({ onAddNew }) {
 
     const handleDownloadStockTemplate = () => {
 
-        const template = [
-            {
-                // Trạng thái
-                status: "available",
+       const template = [
+        {
+            status: "available",
+            name: "7 Thói Quen Hiệu Quả - The 7 Habits Of Highly Effective People",
+            description: "edfsf",
+            price: 67000,
+            originalPrice: 99000,
+            stock: 200,
+            sold: 0,
 
-                // SKU
-                sku: "BOOK02",
+            category_level1: "6a196237765954cad1a84ac6",
+            category_level2: "6a196966765954cad1a84bfb",
 
-                // Tên sách
-                name: "Cho Tôi Xin Một Vé Đi Tuổi Thơ",
+            publisher: "Dale Carnegie",
+            publishYear: 2000,
+            page: 100,
+            language: "Tiếng Việt",
+            ratings: 0,
+            numOfReviews: 0,
+            status: "available",
+            keyword: "",
+            level: "",
+            author: "Thế giới"
+        },
+        {
+            status: "available",
+            name: "Cho Tôi Xin Một Vé Đi Tuổi Thơ",
+            description: "Sách văn học Việt Nam",
+            price: 85000,
+            originalPrice: 100000,
+            stock: 120,
+            sold: 0,
 
-                description:"test",
-                // Giá
-                price: 85000,
+            category_level1: "ID_DANH_MUC_CAP_1",
+            category_level2: "ID_DANH_MUC_CAP_2",
 
-                // Tồn kho
-                stock: 120,
+            publisher: "NXB Trẻ",
+            publishYear: 2023,
+            page: 208,
+            language: "Tiếng Việt",
+            ratings: 0,
+            numOfReviews: 0,
+            keyword: "van_hoc",
+            level: "",
+            author: "Nguyễn Nhật Ánh"
+        },
+        {
+            status: "available",
+            name: "Atomic Habits",
+            description: "An easy and proven way to build good habits and break bad ones",
+            price: 320000,
+            originalPrice: 390000,
+            stock: 45,
+            sold: 0,
 
-                // Số lượng nhập thêm
-                quantity: 100,
+            category_level1: "ID_DANH_MUC_CAP_1",
+            category_level2: "ID_DANH_MUC_CAP_2",
 
-                // Danh mục cấp 1
-                category_level1: "SÁCH VIỆT NAM",
-
-                // Danh mục cấp 2
-                category_level2: "Tiểu thuyết",
-
-                
-                // Nhà xuất bản
-                publisher: "NXB Trẻ",
-
-                // Năm XB
-                publishYear: 2023,
-
-                // Ngôn ngữ
-                language: "Tiếng Việt",
-
-                keyword: "van_hoc"
-            },
-
-            {
-                status: "available",
-
-                sku: "BOOKE009",
-
-                name: "Atomic Habits",
-
-                description:"test",
-
-                price: 320000,
-
-                stock: 45,
-
-                quantity: 50,
-
-                category_level1: "FOREIGN BOOKS",
-
-                category_level2: "Self-help",
-
-               
-
-                publisher: "Penguin Random House",
-
-                publishYear: 2020,
-
-                language: "English",
-
-                keyword: "van_hoc"
-            },
-
-            {
-                status: "available",
-
-                sku: "BOOK096",
-
-                name: "Nhà Giả Kim",
-
-                description:"test",
-
-                price: 99000,
-
-                stock: 80,
-
-                quantity: 80,
-
-                category_level1: "SÁCH VIỆT NAM",
-
-                category_level2: "Tiểu thuyết",
-
-                publisher: "NXB Hội Nhà Văn",
-
-                publishYear: 2021,
-
-                language: "Tiếng Việt",
-
-                keyword: "van_hoc"
-            }
-        ];
+            publisher: "Penguin Random House",
+            publishYear: 2020,
+            page: 320,
+            language: "English",
+            ratings: 0,
+            numOfReviews: 0,
+            keyword: "self_help",
+            level: "",
+            author: "James Clear"
+        }
+    ];
 
         const ws = XLSX.utils.json_to_sheet(template);
 

@@ -16,23 +16,40 @@ import '@/features/product-detail/styles/ProductDetail.css';
  * All business logic lives in useProductDetail hook.
  */
 function ProductDetailView() {
-  const {
-    // state
-    activeTab, setActiveTab,
-    selectedImage, setSelectedImage,
-    selectedColor, selectedSize, selectionError,
-    quantity,
-    // redux
-    loading, error, product, cartLoading,
-    // derived
-    productImages, productColors, productSizes,
-    originalPrice, discountPercent, soldCount,
-    totalReviews, ratingDistribution, mockRelatedProducts,
-    // handlers
-    increaseQuantity, decreaseQuantity,
-    addToCart, handleBuyNow,
-    handleColorSelect, handleSizeSelect,
-  } = useProductDetail();
+ const {
+  // Local state
+  activeTab,
+  setActiveTab,
+  selectedImage,
+  setSelectedImage,
+  quantity,
+
+  // Redux state
+  loading,
+  error,
+  product,
+  cartLoading,
+
+  // Derived data
+  productImages,
+  originalPrice,
+  currentPrice,
+  discountPercent,
+  soldCount,
+  flashSale,
+  maxAvailableQuantity,
+
+  totalReviews,
+  ratingDistribution,
+  reviews,
+  relatedProducts,
+
+  // Actions / handlers
+  increaseQuantity,
+  decreaseQuantity,
+  addToCart,
+  handleBuyNow,
+} = useProductDetail();
 
   // ─── Loading state ──────────────────────────────────────────────────────────
   if (loading) {
@@ -62,7 +79,7 @@ function ProductDetailView() {
   }
 
   // ─── Tab labels ─────────────────────────────────────────────────────────────
-  const TABS = ['Mô tả', `Đánh giá (${product.numOfReviews || 0})`];
+  const TABS = ['Mô tả', `Đánh giá (${totalReviews || 0})`];
 
   return (
     <>
@@ -90,18 +107,13 @@ function ProductDetailView() {
                 originalPrice={originalPrice}
                 soldCount={soldCount}
                 quantity={quantity}
+                flashSale={flashSale}
               />
               <ProductActions
                 product={product}
-                productColors={productColors}
-                productSizes={productSizes}
-                selectedColor={selectedColor}
-                selectedSize={selectedSize}
                 quantity={quantity}
-                selectionError={selectionError}
+                maxAvailableQuantity={maxAvailableQuantity}
                 cartLoading={cartLoading}
-                onColorSelect={handleColorSelect}
-                onSizeSelect={handleSizeSelect}
                 onIncrease={increaseQuantity}
                 onDecrease={decreaseQuantity}
                 onAddToCart={addToCart}
@@ -137,13 +149,12 @@ function ProductDetailView() {
                 </div>
               </div>
 
-              {/* Details tab */}
               
-
               {/* Reviews tab */}
               <div className={`tab-panel ${activeTab === 2 ? 'active' : ''}`} role="tabpanel">
                 <ProductReviews
                   product={product}
+                  reviews={reviews}
                   totalReviews={totalReviews}
                   ratingDistribution={ratingDistribution}
                 />
@@ -152,7 +163,7 @@ function ProductDetailView() {
           </div>
 
           {/* ── Related products ─────────────────────────────────────────── */}
-          <RelatedProducts items={mockRelatedProducts} />
+          <RelatedProducts items={relatedProducts} />
 
         </div>
       </main>

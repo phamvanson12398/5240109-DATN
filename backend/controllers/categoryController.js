@@ -18,6 +18,76 @@ export const getCategories = async (req, res) => {
   }
 };
 
+export const getChildCategories = async (req, res) => {
+  try {
+    const categories = await Category.find({
+      parentId: { $ne: null }
+    })
+      .populate("parentId", "name description")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: categories
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+export const getLevel1CategoriesController = async (req, res) => {
+  try {
+    const categories = await Category.find({
+      parentId: null,
+      status: "active"
+    }).sort({ createdAt: -1 });
+
+    const data = categories.map((item) => ({
+      value: item._id.toString(),
+      label: item.name
+    }));
+
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+export const getLevel2CategoriesController = async (req, res) => {
+  try {
+    const { level1 } = req.params;
+
+    const categories = await Category.find({
+      parentId: level1,
+      status: "active"
+    }).sort({ createdAt: -1 });
+
+    const data = categories.map((item) => ({
+      value: item._id.toString(),
+      label: item.name
+    }));
+
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 export const getCategoryById = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id).populate(

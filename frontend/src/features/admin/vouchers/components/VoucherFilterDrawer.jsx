@@ -36,7 +36,7 @@ const VoucherFilterDrawer = ({ open, onClose, currentFilters, onApply, onReset }
 
     const handleCheckboxToggle = (group, value) => {
         setLocalFilters(prev => {
-            const currentList = prev[group];
+            const currentList = Array.isArray(prev[group]) ? prev[group] : [];
             const newList = currentList.includes(value)
                 ? currentList.filter(item => item !== value)
                 : [...currentList, value];

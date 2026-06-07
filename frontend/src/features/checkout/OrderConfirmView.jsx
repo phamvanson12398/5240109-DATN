@@ -118,6 +118,7 @@ function OrderConfirm() {
       provinceCode: shippingInfo.provinceCode || "",
       districtCode: shippingInfo.districtCode || "",
       wardCode: shippingInfo.wardCode || "",
+      note : shippingInfo.note || "",
     }
 
     // Prepare Order Data
@@ -229,7 +230,8 @@ function OrderConfirm() {
     item?.images?.[0] ||
     item?.thumbnail ||
     ''
-
+  console.log(shippingInfo);
+  
   return (
     <>
       <PageTitle title="Xác nhận đơn hàng" />
@@ -278,6 +280,10 @@ function OrderConfirm() {
                   <div className="col-span-full space-y-1">
                     <p className="text-xs uppercase tracking-widest text-slate-400 font-bold">Địa chỉ nhận hàng</p>
                     <p className="text-lg font-medium leading-relaxed">{fullAddress || '—'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-widest text-slate-400 font-bold">Ghi chú</p>
+                    <p className="text-lg font-medium">{shippingInfo?.note || shippingInfo?.Note || '—'}</p>
                   </div>
                 </div>
               </section>

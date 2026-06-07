@@ -5,16 +5,29 @@ import Product from "../models/productModel.js";
 import User from "../models/userModel.js";
 
 
+const ORDER_CANCELLED = "Đã hủy";
+const REPORT_TIMEZONE = "+07:00";
+
+const getDateKey = (date, format = "day") => {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Ho_Chi_Minh",
+        year: "numeric",
+        month: "2-digit",
+        ...(format === "day" ? { day: "2-digit" } : {})
+    });
+
+    return formatter.format(date);
+};
 export const getDashboardStats = asyncErrorHandler(async (req, res, next) => {
     // Tính toán khoảng thời gian
     const now = new Date();
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
     const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, now.getDate());
 
-   
+
     const currentMonthOrders = await Order.find({
         createdAt: { $gte: lastMonth },
-        orderStatus: { $ne: 'Đã hủy' }
+        orderStatus: { $ne: ORDER_CANCELLED }
     });
 
     const currentMonthRevenue = currentMonthOrders.reduce((total, order) => {
@@ -24,7 +37,7 @@ export const getDashboardStats = asyncErrorHandler(async (req, res, next) => {
     // Doanh thu tháng trước
     const previousMonthOrders = await Order.find({
         createdAt: { $gte: twoMonthsAgo, $lt: lastMonth },
-        orderStatus: { $ne: 'Đã hủy' }
+        orderStatus: { $ne: ORDER_CANCELLED }
     });
 
     const previousMonthRevenue = previousMonthOrders.reduce((total, order) => {
@@ -94,7 +107,7 @@ export const getRecentOrders = asyncErrorHandler(async (req, res, next) => {
         total: order.totalPrice,
         status: order.orderStatus
     }));
-    
+
     res.status(200).json({
         success: true,
         orders: formattedOrders
@@ -103,7 +116,7 @@ export const getRecentOrders = asyncErrorHandler(async (req, res, next) => {
 
 export const getRevenueAnalytics = asyncErrorHandler(async (req, res, next) => {
     const now = new Date();
-    
+
     // 1. Helper function để lấy start date
     const getStartDate = (days) => {
         const date = new Date();
@@ -111,28 +124,51 @@ export const getRevenueAnalytics = asyncErrorHandler(async (req, res, next) => {
         date.setHours(0, 0, 0, 0);
         return date;
     };
-
-    const startOfWeek = getStartDate(6); // 7 ngày bao gồm hôm nay
+    const getStartOfCurrentWeek = () => {
+        const date = new Date();
+        date.setHours(0, 0, 0, 0);
+        const day = date.getDay();
+        const diffToMonday = day === 0 ? -6 : 1 - day;
+        date.setDate(date.getDate() + diffToMonday);
+        return date;
+    };
+    const startOfWeek = getStartOfCurrentWeek(); // 7 ngày bao gồm hôm nay
     const startOfMonth = getStartDate(29); // 30 ngày
     const startOfYear = new Date(now.getFullYear(), 0, 1); // Từ đầu năm
 
     // 2. Aggregation Pipeline Template
-    const getPipeline = (startDate, groupFormat, sortField) => [
+    const getPipeline = (startDate, groupFormat) => [
+        {
+            $addFields: {
+                reportDate: {
+                    $ifNull: [
+                        "$deliveredAt",
+                        { $ifNull: ["$paidAt", "$createdAt"] }
+                    ]
+                }
+            }
+        },
         {
             $match: {
-                orderStatus: 'Đã giao',
-                deliveredAt: { $gte: startDate }
+                orderStatus: { $ne: ORDER_CANCELLED },
+                reportDate: { $gte: startDate }
             }
         },
         {
             $project: {
                 revenue: { $subtract: ["$totalPrice", { $ifNull: ["$shippingPrice", 0] }] },
-                deliveredAt: 1
+                reportDate: 1
             }
         },
         {
             $group: {
-                _id: { $dateToString: { format: groupFormat, date: "$deliveredAt" } },
+                _id: {
+                    $dateToString: {
+                        format: groupFormat,
+                        date: "$reportDate",
+                        timezone: REPORT_TIMEZONE
+                    }
+                },
                 amount: { $sum: "$revenue" }
             }
         },
@@ -152,16 +188,16 @@ export const getRevenueAnalytics = asyncErrorHandler(async (req, res, next) => {
         for (let i = 0; i <= days; i++) {
             const date = new Date(startDate);
             date.setDate(date.getDate() + i);
-            
+
             let label, key;
             if (formatType === 'day') {
-                key = date.toISOString().split('T')[0];
+                key = getDateKey(date, 'day');
                 const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
                 label = daysOfWeek[date.getDay()];
                 if (days > 7) label = `${date.getDate()}/${date.getMonth() + 1}`;
             } else if (formatType === 'month') {
                 date.setMonth(i);
-                key = `${now.getFullYear()}-${(i + 1).toString().padStart(2, '0')}`;
+                key = getDateKey(date, 'month');
                 label = `Thg ${i + 1}`;
             }
 

@@ -1,167 +1,364 @@
-// Filter service for AI chat - validates input and filters relevant products
+const MAX_PRODUCTS = 6;
 
-/**
- * Filter products relevant to user's question
- * Adapted for fashion e-commerce (clothing, shoes, accessories)
- * @param {Array} products - All products from DB
- * @param {string} userMessage - User's message
- * @returns {Array} - Filtered products
- */
-export function filterRelevantProducts(products, userMessage) {
-    const msg = userMessage.toLowerCase();
-    let filtered = [...products];
+const BOOK_GENRE_ALIASES = {
+    van_hoc: [
+        "văn học",
+        "tiểu thuyết",
+        "truyện",
+        "novel",
+        "fiction"
+    ],
 
-    // 1. Filter by CATEGORY (level1: Nam/Nữ/Unisex)
-    const genderKeywords = {
-        "nam": ["nam", "con trai", "đàn ông", "men"],
-        "nữ": ["nữ", "con gái", "phụ nữ", "women"],
-        "unisex": ["unisex"]
-    };
-    for (const [gender, keywords] of Object.entries(genderKeywords)) {
-        if (keywords.some(k => msg.includes(k))) {
-            const genderFiltered = filtered.filter(p =>
-                p.category?.level1?.toLowerCase().includes(gender)
-            );
-            if (genderFiltered.length > 0) {
-                filtered = genderFiltered;
-                break;
-            }
+    kinh_te: [
+        "kinh tế",
+        "kinh doanh",
+        "business",
+        "marketing",
+        "đầu tư",
+        "dau tu"
+    ],
+
+    tam_ly: [
+        "tâm lý",
+        "tam ly",
+        "self help",
+        "phát triển bản thân",
+        "phat trien ban than"
+    ],
+
+    khoa_hoc: [
+        "khoa học",
+        "khoa hoc",
+        "science",
+        "nghiên cứu",
+        "nghien cuu"
+    ],
+
+    lich_su: [
+        "lịch sử",
+        "lich su",
+        "history"
+    ],
+
+    thieu_nhi: [
+        "thiếu nhi",
+        "thieu nhi",
+        "trẻ em",
+        "tre em",
+        "children"
+    ],
+
+    ngoai_ngu: [
+        "ngoại ngữ",
+        "ngoai ngu",
+        "english",
+        "ielts",
+        "toeic"
+    ],
+
+    ky_nang_song: [
+        "kỹ năng sống",
+        "ky nang song",
+        "giao tiếp",
+        "giao tiep",
+        "lãnh đạo",
+        "lanh dao"
+    ],
+
+    truyen_tranh: [
+        "truyện tranh",
+        "truyen tranh",
+        "manga",
+        "comic"
+    ],
+
+    cong_nghe: [
+        "công nghệ",
+        "cong nghe",
+        "lập trình",
+        "lap trinh",
+        "it",
+        "ai"
+    ]
+};
+
+const normalizeText = (value = "") =>
+    String(value)
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .trim();
+
+const includesAny = (text, keywords) =>
+    keywords.some((keyword) => text.includes(normalizeText(keyword)));
+
+const productText = (product) =>
+    normalizeText([
+        product.name,
+        product.author,
+        product.publisher,
+        product.description,
+        product.keyword,
+        product.language,
+        product.category?.level1,
+        product.category?.level2
+    ].filter(Boolean).join(" "));
+
+const applyStrictFilter = (current, predicate, state) => {
+    state.hasSpecificIntent = true;
+    return current.filter(predicate);
+};
+
+const genreTokensFor = (genreName) => {
+    const normalizedGenre = normalizeText(genreName);
+    return BOOK_GENRE_ALIASES[normalizedGenre] || [genreName];
+};
+
+const detectRequestedGenre = (message) => {
+    const normalizedMessage = normalizeText(message);
+
+    for (const [genre, aliases] of Object.entries(BOOK_GENRE_ALIASES)) {
+        if (includesAny(normalizedMessage, aliases)) {
+            return genre;
         }
     }
 
-    // 2. Filter by PRODUCT TYPE (level2: Áo/Quần/Giày...)
-    const typeKeywords = ["áo", "quần", "giày", "dép", "túi", "balo", "mũ", "nón", "phụ kiện",
-        "shirt", "pants", "shoes", "bag"];
-    for (const type of typeKeywords) {
-        if (msg.includes(type)) {
-            const typeFiltered = filtered.filter(p =>
-                (p.category?.level2 || '').toLowerCase().includes(type) ||
-                (p.name || '').toLowerCase().includes(type)
-            );
-            if (typeFiltered.length > 0) {
-                filtered = typeFiltered;
-                break;
-            }
-        }
+    const explicitGenreMatch = normalizedMessage.match(
+        /(?:the loai|loai sach|sach|genre)\s+([a-z0-9\s-]{2,50})/i
+    );
+
+    return explicitGenreMatch?.[1]?.trim() || null;
+};
+const parseBudget = (message) => {
+    const raw = String(message || "").toLowerCase();
+    const normalized = normalizeText(raw);
+
+    const kMatch =
+        raw.match(/(dưới|duoi|tối đa|toi da|<=|<)?\s*(\d+)\s*(k|nghìn|ngàn|nghin|ngan)/i) ||
+        normalized.match(/(duoi|toi da|<=|<)?\s*(\d+)\s*(k|nghin|ngan)/i);
+
+    if (kMatch) {
+        return {
+            value: Number.parseInt(kMatch[2], 10) * 1000,
+            mode: kMatch[1] ? "lte" : "around"
+        };
     }
 
-    // 3. Filter by BRAND
-    const brands = ["nike", "adidas", "uniqlo", "zara", "h&m", "gucci", "puma", "converse",
-        "vans", "louis vuitton", "balenciaga", "new balance"];
-    for (const brand of brands) {
-        if (msg.includes(brand)) {
-            const brandFiltered = filtered.filter(p =>
-                (p.brand || '').toLowerCase().includes(brand) ||
-                (p.name || '').toLowerCase().includes(brand)
-            );
-            if (brandFiltered.length > 0) {
-                filtered = brandFiltered;
-                break;
-            }
-        }
+    const millionMatch =
+        raw.match(/(dưới|duoi|tối đa|toi da|<=|<)?\s*(\d+)\s*(triệu|tr|trieu)/i) ||
+        normalized.match(/(duoi|toi da|<=|<)?\s*(\d+)\s*(trieu|tr)/i);
+
+    if (millionMatch) {
+        return {
+            value: Number.parseInt(millionMatch[2], 10) * 1000000,
+            mode: millionMatch[1] ? "lte" : "around"
+        };
     }
 
-    // 4. Filter by BUDGET
-    const pricePatterns = [
-        /(\d+)\s*(triệu|tr|trieu)/i,
-        /(\d+)tr/i,
-        /dưới\s*(\d+)/i,
-        /khoảng\s*(\d+)/i,
-        /tầm\s*(\d+)/i
-    ];
-    for (const pattern of pricePatterns) {
-        const match = msg.match(pattern);
-        if (match) {
-            const budget = parseInt(match[1]) * 1000000;
-            filtered = filtered.filter(p =>
-                p.price >= budget * 0.7 && p.price <= budget * 1.3
-            );
-            break;
-        }
-    }
+    return null;
+};
 
-    // Also check patterns like "dưới 500k", "200 ngàn"
-    const kPatterns = [
-        /(\d+)\s*(k|nghìn|ngàn|nghin)/i,
-        /dưới\s*(\d+)\s*(k|nghìn|ngàn)/i
-    ];
-    for (const pattern of kPatterns) {
-        const match = msg.match(pattern);
-        if (match) {
-            const budget = parseInt(match[1]) * 1000;
-            filtered = filtered.filter(p =>
-                p.price >= budget * 0.5 && p.price <= budget * 1.5
-            );
-            break;
-        }
-    }
+const sortByPriority = (products) =>
+    [...products].sort((a, b) => {
+        const aSale = Number(a.originalPrice || 0) > Number(a.price || 0) ? 1 : 0;
+        const bSale = Number(b.originalPrice || 0) > Number(b.price || 0) ? 1 : 0;
 
-    // 5. Filter by MATERIAL
-    const materials = ["cotton", "len", "lụa", "vải", "da", "jean", "denim", "kaki", "linen", "polyester"];
-    for (const mat of materials) {
-        if (msg.includes(mat)) {
-            const matFiltered = filtered.filter(p =>
-                (p.material || '').toLowerCase().includes(mat) ||
-                (p.description || '').toLowerCase().includes(mat)
-            );
-            if (matFiltered.length > 0) {
-                filtered = matFiltered;
-                break;
-            }
-        }
-    }
+        const aStock = Number(a.stock || 0) > 0 ? 1 : 0;
+        const bStock = Number(b.stock || 0) > 0 ? 1 : 0;
 
-    // 6. Filter by VIBE & STYLE (Personal Stylist Upgrade)
-    const styleKeywords = ["streetwear", "minimalism", "vintage", "office", "y2k", "old money", "sporty", "thời trang", "phong cách"];
-    const vibeKeywords = ["bí ẩn", "năng động", "quyến rũ", "phóng khoáng", "thanh lịch", "trẻ trung", "chill", "sang trọng"];
-    
-    let styleMatch = styleKeywords.find(s => msg.includes(s));
-    let vibeMatch = vibeKeywords.find(v => msg.includes(v));
-
-    if (styleMatch || vibeMatch) {
-        const personalityFiltered = filtered.filter(p => 
-            (styleMatch && (p.style || '').toLowerCase().includes(styleMatch)) ||
-            (vibeMatch && (p.vibe || '').toLowerCase().includes(vibeMatch))
+        return (
+            bStock - aStock ||
+            bSale - aSale ||
+            Number(b.sold || 0) - Number(a.sold || 0) ||
+            Number(b.ratings || 0) - Number(a.ratings || 0)
         );
-        if (personalityFiltered.length > 0) {
-            filtered = personalityFiltered;
+    });
+
+const filterByRequestedGenre = (products, requestedGenre) => {
+    if (!requestedGenre) return products;
+
+    const tokens = genreTokensFor(requestedGenre).map(normalizeText);
+
+    return products.filter((product) =>
+        tokens.some((token) => productText(product).includes(token))
+    );
+};
+
+export function filterRelevantProducts(products = [], userMessage = "") {
+    if (!Array.isArray(products) || products.length === 0) {
+        return [];
+    }
+
+    const msg = normalizeText(userMessage);
+    let filtered = [...products];
+    const state = { hasSpecificIntent: false };
+
+    const requestedGenre = detectRequestedGenre(userMessage);
+
+    if (requestedGenre) {
+        state.hasSpecificIntent = true;
+        filtered = filterByRequestedGenre(filtered, requestedGenre);
+    }
+
+    const bookTypeKeywords = [
+        "sách",
+        "truyện",
+        "tiểu thuyết",
+        "truyện tranh",
+        "manga",
+        "comic",
+        "giáo trình",
+        "sách thiếu nhi",
+        "sách kinh tế",
+        "sách kỹ năng",
+        "sách ngoại ngữ",
+        "sách lịch sử",
+        "sách khoa học",
+        "sách lập trình"
+    ];
+
+    for (const type of bookTypeKeywords) {
+        const normalizedType = normalizeText(type);
+
+        if (msg.includes(normalizedType)) {
+            filtered = applyStrictFilter(
+                filtered,
+                (product) => productText(product).includes(normalizedType),
+                state
+            );
+            break;
         }
     }
 
-    // 6. Prioritize in-stock products
-    const inStock = filtered.filter(p => p.stock > 0);
+    const authorKeywords = [
+        "nguyễn nhật ánh",
+        "nam cao",
+        "tô hoài",
+        "vũ trọng phụng",
+        "ngô tất tố",
+        "haruki murakami",
+        "osamu dazai",
+        "dale carnegie",
+        "paulo coelho",
+        "j.k. rowling"
+    ];
+
+    for (const author of authorKeywords) {
+        const normalizedAuthor = normalizeText(author);
+
+        if (msg.includes(normalizedAuthor)) {
+            filtered = applyStrictFilter(
+                filtered,
+                (product) =>
+                    normalizeText(product.author).includes(normalizedAuthor) ||
+                    productText(product).includes(normalizedAuthor),
+                state
+            );
+            break;
+        }
+    }
+
+    const publisherKeywords = [
+        "kim đồng",
+        "nxb trẻ",
+        "nhã nam",
+        "alphabooks",
+        "first news",
+        "đinh tị",
+        "mcbooks",
+        "thaihabooks"
+    ];
+
+    for (const publisher of publisherKeywords) {
+        const normalizedPublisher = normalizeText(publisher);
+
+        if (msg.includes(normalizedPublisher)) {
+            filtered = applyStrictFilter(
+                filtered,
+                (product) =>
+                    normalizeText(product.publisher).includes(normalizedPublisher) ||
+                    productText(product).includes(normalizedPublisher),
+                state
+            );
+            break;
+        }
+    }
+
+    const languageKeywords = {
+        "Tiếng Việt": ["tiếng việt", "tieng viet", "sách việt"],
+        English: ["english", "tiếng anh", "tieng anh", "sách tiếng anh"],
+        Japanese: ["japanese", "tiếng nhật", "tieng nhat"],
+        Chinese: ["chinese", "tiếng trung", "tieng trung"]
+    };
+
+    for (const [language, keywords] of Object.entries(languageKeywords)) {
+        if (includesAny(msg, keywords)) {
+            filtered = applyStrictFilter(
+                filtered,
+                (product) =>
+                    normalizeText(product.language).includes(normalizeText(language)) ||
+                    productText(product).includes(normalizeText(language)),
+                state
+            );
+            break;
+        }
+    }
+
+    const budget = parseBudget(userMessage);
+
+    if (budget) {
+        filtered = applyStrictFilter(
+            filtered,
+            (product) => {
+                const price = Number(product.price || 0);
+
+                if (budget.mode === "lte") {
+                    return price <= budget.value;
+                }
+
+                return price >= budget.value * 0.6 && price <= budget.value * 1.4;
+            },
+            state
+        );
+    }
+
+    if (includesAny(msg, ["sale", "giảm giá", "giam gia", "khuyến mãi", "khuyen mai", "ưu đãi", "uu dai"])) {
+        state.hasSpecificIntent = true;
+
+        filtered = filtered.filter(
+            (product) => Number(product.originalPrice || 0) > Number(product.price || 0)
+        );
+    }
+
+    if (includesAny(msg, ["bán chạy", "ban chay", "best seller", "bestseller", "hot", "nổi bật", "noi bat"])) {
+        state.hasSpecificIntent = true;
+        filtered = sortByPriority(filtered);
+    }
+
+    const inStock = filtered.filter((product) => Number(product.stock || 0) > 0);
+
     if (inStock.length > 0) {
         filtered = inStock;
     }
 
-    // 7. Limit to avoid excessively long AI context
-    const MAX_PRODUCTS = 15;
-    if (filtered.length > MAX_PRODUCTS) {
-        filtered.sort((a, b) => a.price - b.price);
-        const step = Math.floor(filtered.length / MAX_PRODUCTS);
-        filtered = filtered.filter((_, index) => index % step === 0).slice(0, MAX_PRODUCTS);
-    }
-
-    // Fallback to all products if filter too aggressive
     if (filtered.length === 0) {
-        console.log("⚠️ No filtered products, using all");
-        return products.slice(0, MAX_PRODUCTS);
+        console.log("Không tìm thấy sách phù hợp với bộ lọc chat.", {
+            requestedGenre,
+            userMessage
+        });
+
+        return [];
     }
 
-    console.log(`✅ Filtered: ${filtered.length}/${products.length} products`);
-    return filtered;
+    return sortByPriority(filtered).slice(0, MAX_PRODUCTS);
 }
 
-/**
- * Validate user input
- * @param {string} userMessage
- * @returns {{valid: boolean, message?: string}}
- */
 export function validateInput(userMessage) {
-    if (!userMessage || typeof userMessage !== 'string') {
+    if (!userMessage || typeof userMessage !== "string") {
         return {
             valid: false,
-            message: "Bạn muốn hỏi gì ạ? 😊"
+            message: "Bạn muốn tìm sách gì ạ?"
         };
     }
 
@@ -170,23 +367,24 @@ export function validateInput(userMessage) {
     if (trimmed.length === 0) {
         return {
             valid: false,
-            message: "Bạn muốn hỏi gì ạ? 😊"
+            message: "Bạn muốn tìm sách gì ạ?"
         };
     }
 
     if (trimmed.length > 500) {
         return {
             valid: false,
-            message: "Câu hỏi hơi dài quá bạn ơi 😅 Bạn có thể nói ngắn gọn hơn được không?"
+            message: "Câu hỏi hơi dài quá bạn ơi. Bạn có thể nói ngắn gọn hơn được không?"
         };
     }
 
-    // Filter spam/offensive content
-    const spamPatterns = /(.)\\1{10,}|^[^a-zA-Z0-9\\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]+$/;
-    if (spamPatterns.test(trimmed)) {
+    const normalized = normalizeText(trimmed);
+    const spamPatterns = /(.)\1{10,}|^[^a-z0-9\s]+$/i;
+
+    if (spamPatterns.test(normalized)) {
         return {
             valid: false,
-            message: "Mình không hiểu lắm, bạn có thể hỏi rõ hơn được không? 🤔"
+            message: "Mình chưa hiểu rõ. Bạn có thể nói lại tên sách, thể loại hoặc tác giả bạn muốn tìm không?"
         };
     }
 

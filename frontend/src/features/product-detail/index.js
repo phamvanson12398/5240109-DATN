@@ -13,5 +13,3 @@ export { default as ProductActions } from './components/ProductActions';
 export { default as ProductReviews } from './components/ProductReviews';
 export { default as RelatedProducts } from './components/RelatedProducts';
 
-// Hook
-export { useProductDetail, COLOR_MAP } from './hooks/useProductDetail';

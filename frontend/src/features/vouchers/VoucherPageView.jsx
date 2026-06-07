@@ -31,8 +31,7 @@ const VoucherPageView = () => {
     } = useVouchers(viewMode);
 
     const tabs = [
-        { id: "all", label: "Tất Cả" },
-        { id: "shop", label: "Mã giảm giá của cửa hàng" },
+        { id: "all", label: "Tất Cả" }
     ];
 
     return (

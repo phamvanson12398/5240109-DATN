@@ -16,6 +16,12 @@ const normalizeStatus = (status) => {
   return 'pending';
 };
 
+const getOrderItemProductId = (item) => {
+  const product = item?.product_id || item?.productId || item?.product;
+
+  if (!product) return '';
+  return typeof product === 'object' ? product._id : product;
+};
 /**
  * useMyOrders — gom toàn bộ logic list/filter/cancel orders.
  * MyOrdersView là pure layout component.
@@ -85,6 +91,7 @@ export function useMyOrders() {
   const openReview = (order) => {
     const firstItem = order.orderItems?.[0];
     if (!firstItem) return;
+    const productId = getOrderItemProductId(firstItem);
     setReviewProduct({
       _id: firstItem.productId || firstItem.product || firstItem._id,
       name: firstItem.name,

@@ -10,6 +10,35 @@ import { getRelatedProductsLevel1 } from '../services/productRecommendationServi
 
 import { v2 as cloudinary } from 'cloudinary';
 
+
+const uploadReviewMedia = async (files = []) => {
+    const mediaFiles = Array.isArray(files) ? files : [files];
+    const uploadedMedia = [];
+
+    for (const file of mediaFiles) {
+        const result = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                {
+                    folder: "reviews",
+                    resource_type: "auto"
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+            uploadStream.end(file.data);
+        });
+
+        uploadedMedia.push({
+            public_id: result.public_id,
+            url: result.secure_url,
+            resource_type: result.resource_type || "image"
+        });
+    }
+
+    return uploadedMedia;
+};
 // tao san pham 
 export const createProducts = handleAsyncError(async (req, res, next) => {
     console.log(req.body);
@@ -79,7 +108,6 @@ export const getAllProducts = handleAsyncError(async (req, res, next) => {
 
     const apiFeatures = new APIFunctionality(Product.find(), req.query)
         .search().filter().sort()
-    console.log(req.query);
 
     // lọc filter trước khi phân trang 
     const filteredQuery = apiFeatures.query.clone()  // tạo bản sao của query để đếm số lượng sản phẩm sau khi filter
@@ -100,13 +128,11 @@ export const getAllProducts = handleAsyncError(async (req, res, next) => {
     let relatedProducts = [];
     let hasResults = products.length > 0;
 
-
     // Nếu không có kết quả, gọi service gợi ý (Level 1)
     if (!hasResults) {
         // Lấy category từ query (nếu có map trong APIFunctionality)
-        // Lưu ý: APIFunctionality.CATEGORY_MAP là static nên ta có thể dùng để trích xuất level1,2,3
+        // Lưu ý: APIFunctionality.CATEGORY_MAP là static nên ta có thể dùng để trích xuất level1,2
         const mappedCategory = req.query.category ? APIFunctionality.CATEGORY_MAP[req.query.category] : null;
-
         relatedProducts = await getRelatedProductsLevel1({
             category: mappedCategory || {
                 level1: req.query.level1,
@@ -115,7 +141,6 @@ export const getAllProducts = handleAsyncError(async (req, res, next) => {
             limit: 8
         });
     }
-
     res.status(200).json({
         success: true,
         products,
@@ -162,7 +187,7 @@ export const updateProduct = handleAsyncError(async (req, res, next) => {
     }
 
     // 2. Cập nhật các trường cơ bản
-    const fields = ["name", "description", "price", "originalPrice", "stock", "publisher", "author","publishYear","language", "page"];
+    const fields = ["name", "description", "price", "originalPrice", "stock", "publisher", "author", "publishYear", "language", "page"];
     fields.forEach(f => { if (req.body[f] !== undefined) product[f] = req.body[f]; });
 
     // 3. Category & Arrays
@@ -178,11 +203,11 @@ export const updateProduct = handleAsyncError(async (req, res, next) => {
     // Lưu và Log kết quả
     await product.save();
     console.log(req.body);
-    
+
     console.log("Sản phẩm sau khi SAVE:", { keyword: product.keyword });
     console.log("----------------------------------");
     console.log(product);
-    
+
     res.status(200).json({
         success: true,
         product,
@@ -211,9 +236,16 @@ export const getSingleProduct = handleAsyncError(async (req, res, next) => {
     if (!product) {
         return next(new HandleError("Sản phẩm không tồn tại", 404))
     }
+    const relatedProducts = await getRelatedProductsLevel1({
+        brand: product.brand,
+        category: product.category,
+        limit: 4,
+        excludeProductId: product._id
+    });
     res.status(200).json({
         success: true,
-        product
+        product,
+        relatedProducts
     })
 })
 
@@ -236,6 +268,10 @@ export const createReviewProduct = handleAsyncError(async (req, res, next) => {
     if (!product) {
         return next(new HandleError("Sản phẩm không tồn tại", 404));
     }
+    const uploadedMedia = req.files?.images
+        ? await uploadReviewMedia(req.files.images)
+        : [];
+
 
     // Check if review already exists for this user + product
     const existingReview = await Review.findOne({
@@ -248,6 +284,9 @@ export const createReviewProduct = handleAsyncError(async (req, res, next) => {
         // Update existing review
         existingReview.rating = Number(rating);
         existingReview.comment = comment;
+        if (uploadedMedia.length > 0) {
+            existingReview.images = uploadedMedia;
+        }
         await existingReview.save();
         isUpdate = true;
     } else {
@@ -257,6 +296,7 @@ export const createReviewProduct = handleAsyncError(async (req, res, next) => {
             product_id: productId,
             rating: Number(rating),
             comment,
+            images: uploadedMedia,
             status: "approved"
         });
     }

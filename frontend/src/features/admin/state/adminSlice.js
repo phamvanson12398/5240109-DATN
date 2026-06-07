@@ -288,6 +288,12 @@ export const fetchAllAdminVouchers = createAsyncThunk(
             // Chuyển đổi object filter thành query string
             const params = new URLSearchParams();
             Object.entries(filters).forEach(([key, value]) => {
+                if (Array.isArray(value)) {
+                    if (value.length > 0) {
+                        params.append(key, value.join(','));
+                    }
+                    return;
+                }
                 if (value !== undefined && value !== null && value !== '') {
                     params.append(key, value);
                 }
@@ -401,10 +407,10 @@ export const fetchAllOrders = createAsyncThunk(
  */
 export const updateOrderStatus = createAsyncThunk(
     'admin/updateOrderStatus',
-    async ({ id, status,email, trackingNumber, cancellationReason }, { rejectWithValue }) => {
+    async ({ id, status, email, trackingNumber, cancellationReason }, { rejectWithValue }) => {
         try {
             const { data } = await axios.put(`/api/v1/admin/order/${id}`,
-                { status,email, trackingNumber, cancellationReason },
+                { status, email, trackingNumber, cancellationReason },
                 { withCredentials: true }
             );
             return data.order;
@@ -920,7 +926,7 @@ const adminSlice = createSlice({
             .addCase(importProducts.fulfilled, (state, action) => {
                 state.loading = false;
                 state.importResult = action.payload;
-                
+
                 // Cập nhật/Thêm sản phẩm vào danh sách một cách thông minh để tránh trùng lặp ID
                 if (action.payload.products && Array.isArray(action.payload.products)) {
                     action.payload.products.forEach(newP => {

@@ -69,6 +69,35 @@ const getFlashSaleItemStats = (items = []) => {
   };
 };
 
+const serializeAdminFlashSale = async (campaign, options = {}) =>
+  serializeFlashSale(campaign, { ...options, includeInactiveItems: true });
+
+const assertSaleStockWithinProductStock = ({ product, saleStock, item = null }) => {
+  const normalizedSaleStock = Number(saleStock);
+
+  if (!Number.isFinite(normalizedSaleStock) || normalizedSaleStock < 1) {
+    throw new HandleError("Flash Sale stock must be at least 1", 400);
+  }
+
+  const productStock = Math.max(0, Number(product?.stock || 0));
+  if (normalizedSaleStock > productStock) {
+    throw new HandleError(
+      `Flash Sale stock (${normalizedSaleStock}) cannot exceed current product stock (${productStock})`,
+      400
+    );
+  }
+
+  if (item) {
+    const committedQuantity = Number(item.soldCount || 0) + Number(item.reservedCount || 0);
+    if (normalizedSaleStock < committedQuantity) {
+      throw new HandleError(
+        `Flash Sale stock cannot be lower than sold + reserved (${committedQuantity})`,
+        400
+      );
+    }
+  }
+};
+
 export const createFlashSale = handleAsyncError(async (req, res, next) => {
   const { name, description, banner, startAt, endAt, isVisible, priority } = req.body;
   await assertNoCampaignOverlap({ startAt: new Date(startAt), endAt: new Date(endAt) });
@@ -104,7 +133,7 @@ export const getAdminFlashSales = handleAsyncError(async (req, res) => {
 
   const flashSales = await Promise.all(
     campaigns.map(async (campaign) => {
-      const serialized = await serializeFlashSale(campaign);
+      const serialized = await serializeAdminFlashSale(campaign);
       serialized.stats = getFlashSaleItemStats(serialized.items || []);
       return serialized;
     })
@@ -123,7 +152,7 @@ export const getAdminFlashSale = handleAsyncError(async (req, res, next) => {
   const campaign = await FlashSale.findById(req.params.id);
   if (!campaign) return next(new HandleError("Flash Sale not found", 404));
 
-  const flashSale = await serializeFlashSale(campaign);
+  const flashSale = await serializeAdminFlashSale(campaign);
   flashSale.stats = getFlashSaleItemStats(flashSale.items || []);
 
   res.status(200).json({ success: true, flashSale });
@@ -143,7 +172,7 @@ export const updateFlashSale = handleAsyncError(async (req, res, next) => {
   await campaign.save();
   res.status(200).json({
     success: true,
-    flashSale: await serializeFlashSale(campaign),
+    flashSale: await serializeAdminFlashSale(campaign),
   });
 });
 
@@ -172,7 +201,7 @@ export const publishFlashSale = handleAsyncError(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    flashSale: await serializeFlashSale(campaign),
+    flashSale: await serializeAdminFlashSale(campaign),
   });
 });
 
@@ -185,7 +214,7 @@ export const cancelFlashSale = handleAsyncError(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    flashSale: await serializeFlashSale(campaign),
+    flashSale: await serializeAdminFlashSale(campaign),
   });
 });
 
@@ -197,6 +226,7 @@ export const addFlashSaleItem = handleAsyncError(async (req, res, next) => {
   if (!product) return next(new HandleError("Product not found", 404));
 
   await assertNoProductOverlap({ productId: product._id, campaign });
+  assertSaleStockWithinProductStock({ product, saleStock: req.body.saleStock });
 
   const originalPriceSnapshot = Number(req.body.originalPriceSnapshot || product.originalPrice || product.price);
   const item = await FlashSaleItem.create({
@@ -222,18 +252,33 @@ export const updateFlashSaleItem = handleAsyncError(async (req, res, next) => {
 
   const item = await FlashSaleItem.findOne({ _id: req.params.itemId, flashSaleId: campaign._id });
   if (!item) return next(new HandleError("Flash Sale item not found", 404));
+  let product = null;
+  const isProductChanged = Boolean(req.body.productId && req.body.productId !== item.productId.toString());
 
   const allowed = ["salePrice", "saleStock", "perUserLimit", "sortOrder", "isActive"];
   allowed.forEach((key) => {
     if (req.body[key] !== undefined) item[key] = req.body[key];
   });
 
-  if (req.body.productId && req.body.productId !== item.productId.toString()) {
-    const product = await Product.findById(req.body.productId);
+  if (isProductChanged) {
+    product = await Product.findById(req.body.productId);
     if (!product) return next(new HandleError("Product not found", 404));
     await assertNoProductOverlap({ productId: product._id, campaign, excludeItemId: item._id });
     item.productId = product._id;
     item.originalPriceSnapshot = Number(req.body.originalPriceSnapshot || product.originalPrice || product.price);
+  }
+
+  if (req.body.saleStock !== undefined || isProductChanged) {
+    if (!product) {
+      product = await Product.findById(item.productId);
+    }
+
+    if (!product) return next(new HandleError("Product not found", 404));
+    assertSaleStockWithinProductStock({
+      product,
+      saleStock: req.body.saleStock !== undefined ? req.body.saleStock : item.saleStock,
+      item,
+    });
   }
 
   await item.save();

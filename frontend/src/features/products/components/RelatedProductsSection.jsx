@@ -2,6 +2,8 @@ import React from "react";
 import ProductCard from "./ProductCard";
 
 function RelatedProductsSection({ products, title = "Sản phẩm liên quan" }) {
+  console.log("products",products);
+  
   if (!products || products.length === 0) return null;
 
   return (

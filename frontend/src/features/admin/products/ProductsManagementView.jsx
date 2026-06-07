@@ -97,13 +97,13 @@ function ProductsManagementView() {
                 : categoryId;
 
         const category = categories.find((item) => item._id === id);
-        
+
         return category?.name || "Chưa có danh mục";
     };
 
     const getProductCategory = (product) => {
-        
-        
+
+
         const level1Name = getCategoryNameById(product.category.level1);
         const level2Name = getCategoryNameById(product.category.level2);
 
@@ -334,6 +334,7 @@ function ProductsManagementView() {
                     onClose={() => {
                         setShowModal(false);
                         setInitialFormData(null);
+                        setSelectedProduct(null);
                     }}
                 />
             )}

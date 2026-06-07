@@ -75,7 +75,7 @@ router.route("/review").put(verifyUserAuth, createReviewProduct);
 
 router
   .route("/reviews")
-  .get(verifyUserAuth, getReviewProduct)
+  .get( getReviewProduct)
   .delete(verifyUserAuth, deleteReviewProduct);
 
 export default router;

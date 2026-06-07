@@ -513,7 +513,7 @@ function OrdersManagementView() {
                         {modalData.status === "Đang giao" ? (
                             <Box className="orders-tracking-field-row">
                                 <TextField
-                                    label="Mã vận đơn (Tracking Number)"
+                                    label="Mã vận đơn "
                                     fullWidth
                                     variant="outlined"
                                     value={modalData.trackingNumber}

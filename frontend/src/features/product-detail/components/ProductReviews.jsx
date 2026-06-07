@@ -4,8 +4,20 @@ import React from 'react';
  * ProductReviews — tab đánh giá: rating summary + danh sách review.
  * Pure presentation — nhận props từ parent.
  */
-function ProductReviews({ product, totalReviews, ratingDistribution }) {
-  if (!product?.reviews || product.reviews.length === 0) {
+function ProductReviews({ product, reviews = [], totalReviews, ratingDistribution }) {
+  const visibleReviews = reviews.length > 0 ? reviews : product?.reviews || [];
+  const averageRating = product?.ratings ?? product?.rating ?? 0;
+
+  const formatReviewDate = (dateString) => {
+    if (!dateString) return 'Gần đây';
+
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return 'Gần đây';
+
+    return date.toLocaleDateString('vi-VN');
+  };
+
+  if (visibleReviews.length === 0) {
     return (
       <div className="no-reviews">
         <p>Chưa có đánh giá nào cho sản phẩm này.</p>
@@ -18,9 +30,9 @@ function ProductReviews({ product, totalReviews, ratingDistribution }) {
       {/* Rating summary */}
       <div className="reviews-summary">
         <div className="rating-big">
-          <div className="number">{product.rating?.toFixed(1) || '0.0'}</div>
+          <div className="number">{Number(averageRating).toFixed(1) }</div>
           <div className="stars">⭐⭐⭐⭐⭐</div>
-          <div className="count">{product.numOfReviews} đánh giá</div>
+          <div className="count">{totalReviews} đánh giá</div>
         </div>
         <div className="rating-bars">
           {ratingDistribution.map((item) => (
@@ -40,18 +52,26 @@ function ProductReviews({ product, totalReviews, ratingDistribution }) {
 
       {/* Review list */}
       <div className="review-list">
-        {product.reviews.map((review, index) => (
-          <div className="review-item" key={index}>
+        {visibleReviews.map((review, index) => {
+          const reviewerName = review.user_id?.name || review.name || 'Người dùng';
+          const avatarUrl = review.user_id?.avatar?.url || review.avatar?.url;
+
+          return (
+          <div className="review-item" key={review._id || index}>
             <div className="review-header">
               <div className="reviewer-avatar">
-                {review.name?.charAt(0)?.toUpperCase() || 'U'}
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={reviewerName} />
+                ) : (
+                  reviewerName.charAt(0).toUpperCase()
+                )}
               </div>
               <div className="reviewer-info">
-                <div className="reviewer-name">{review.name}</div>
+                <div className="reviewer-name">{reviewerName}</div>
                 <div className="review-meta">
                   <span className="stars">{'⭐'.repeat(review.rating)}</span>
                   <span>•</span>
-                  <span>Gần đây</span>
+                  <span>{formatReviewDate(review.createdAt)}</span>
                   <span>•</span>
                   <span className="verified-badge">✓ Đã mua hàng</span>
                 </div>
@@ -63,7 +83,7 @@ function ProductReviews({ product, totalReviews, ratingDistribution }) {
             {review.images?.length > 0 && (
               <div className="review-images">
                 {review.images.map((img, i) => {
-                  const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(img.url);
+                  const isVideo = img.resource_type === 'video' || /\.(mp4|webm|ogg|mov)$/i.test(img.url);
                   return isVideo ? (
                     <video
                       key={i}
@@ -84,7 +104,8 @@ function ProductReviews({ product, totalReviews, ratingDistribution }) {
               </div>
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
     </>
   );

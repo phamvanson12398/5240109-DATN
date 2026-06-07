@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { createProduct, updateProduct } from '@/features/admin/state/adminSlice';
 import { toast } from 'react-toastify';
-import { getLevel1Categories, getLevel2Categories } from '@/shared/constants/categories';
 import { BOOK_GENRE_OPTIONS } from '@/shared/constants/aiSettings';
 import '../styles/ProductFormModal.css';
 
@@ -12,6 +11,29 @@ function ProductFormModal({ product, onClose, initialData }) {
     const isEditMode = !!product;
     const [level1Categories, setLevel1Categories] = useState([]);
     const [level2Categories, setLevel2Categories] = useState([]);
+
+    const [categoryChild, setCategoryChild] = useState([]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await fetch("/api/v1/categories/child");
+
+                const result = await response.json();
+
+                if (result.success) {
+                    setCategoryChild(result.data);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+
+
 
 
     const [formData, setFormData] = useState({
@@ -42,28 +64,49 @@ function ProductFormModal({ product, onClose, initialData }) {
 
         keyword: '',
     });
+
     useEffect(() => {
         const fetchLevel1Categories = async () => {
-            const data = await getLevel1Categories();
-            setLevel1Categories(data);
+            try {
+                const res = await fetch("http://localhost:8000/api/v1/categories/level-1");
+                const result = await res.json();
+
+                if (result.success) {
+                    setLevel1Categories(result.data);
+                }
+            } catch (error) {
+                console.error(error);
+            }
         };
 
         fetchLevel1Categories();
     }, []);
 
     useEffect(() => {
-        const fetchLevel2Categories = async () => {
-            if (!formData.categoryLevel1) {
-                setLevel2Categories([]);
-                return;
-            }
+        if (!formData.categoryLevel1) {
+            setLevel2Categories([]);
+            return;
+        }
 
-            const data = await getLevel2Categories(formData.categoryLevel1);
-            setLevel2Categories(data);
+        const fetchLevel2Categories = async () => {
+            try {
+                const res = await fetch(
+                    `http://localhost:8000/api/v1/categories/level-2/${formData.categoryLevel1}`
+                );
+
+                const result = await res.json();
+
+                if (result.success) {
+                    setLevel2Categories(result.data);
+                }
+            } catch (error) {
+                console.error(error);
+            }
         };
 
         fetchLevel2Categories();
     }, [formData.categoryLevel1]);
+
     const [imagesPreview, setImagesPreview] = useState([]);
     const [tempTag, setTempTag] = useState({ size: '', color: '' });
     const [discountPercent, setDiscountPercent] = useState(0);
@@ -134,9 +177,9 @@ function ProductFormModal({ product, onClose, initialData }) {
         setFormData((prev) => ({
             ...prev,
             [name]: value,
-            ...(name === "categoryLevel1" && {
-                categoryLevel2: "",
-            }),
+            ...(name === "categoryLevel1"
+                ? { categoryLevel2: "" }
+                : {})
         }));
     };
 
@@ -179,20 +222,6 @@ function ProductFormModal({ product, onClose, initialData }) {
             setFormData(prev => ({ ...prev, images: newImages }));
         }
     };
-
-    // const addTag = (type) => {
-    //     const value = tempTag[type === 'sizes' ? 'size' : 'color'];
-    //     if (!value.trim()) return;
-    //     if (formData[type].includes(value.trim())) {
-    //         toast.warning(`${value} đã tồn tại!`);
-    //         return;
-    //     }
-    //     setFormData(prev => ({
-    //         ...prev,
-    //         [type]: [...prev[type], value.trim()]
-    //     }));
-    //     setTempTag(prev => ({ ...prev, [type === 'sizes' ? 'size' : 'color']: '' }));
-    // };
 
     const handleTagKeyDown = (e, type) => {
         if (e.key === 'Enter') {
@@ -546,9 +575,9 @@ function ProductFormModal({ product, onClose, initialData }) {
                                                 onChange={handleChange}
                                             >
                                                 <option value="">Chọn Từ khóa</option>
-                                                {BOOK_GENRE_OPTIONS.map(option => (
-                                                    <option key={option.value} value={option.value}>
-                                                        {option.icon} {option.label}
+                                                {categoryChild.map(option => (
+                                                    <option key={option._id} value={option.name}>
+                                                        {option.name}
                                                     </option>
                                                 ))}
                                             </select>

@@ -4,6 +4,71 @@ import { askChatbot } from "../services/chatService.js";
 
 const conversationHistory = new Map();
 
+const SESSION_TTL_MS = 2 * 60 * 60 * 1000;
+const MAX_MESSAGES = 20;
+const MAX_SESSIONS = 1000;
+const CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
+
+const createSession = () => ({
+    history: [],
+    updatedAt: Date.now()
+});
+
+const isExpired = (session, now = Date.now()) =>
+    !session?.updatedAt || now - session.updatedAt > SESSION_TTL_MS;
+
+const getSession = (sessionId) => {
+    const existing = conversationHistory.get(sessionId);
+
+    if (!existing || isExpired(existing)) {
+        if (existing) {
+            conversationHistory.delete(sessionId);
+            console.log(`[AI Chat] expired session ${sessionId}`);
+        }
+
+        const session = createSession();
+        conversationHistory.set(sessionId, session);
+        console.log(`[AI Chat] new session ${sessionId}`);
+        return session;
+    }
+
+    return existing;
+};
+
+const trimHistory = (history) => {
+    if (history.length > MAX_MESSAGES) {
+        history.splice(0, history.length - MAX_MESSAGES);
+    }
+};
+
+const cleanupSessions = () => {
+    const now = Date.now();
+    let expiredCount = 0;
+
+    for (const [sessionId, session] of conversationHistory.entries()) {
+        if (isExpired(session, now)) {
+            conversationHistory.delete(sessionId);
+            expiredCount += 1;
+        }
+    }
+
+    if (conversationHistory.size > MAX_SESSIONS) {
+        const overflowCount = conversationHistory.size - MAX_SESSIONS;
+        const oldestSessions = Array.from(conversationHistory.entries())
+            .sort(([, a], [, b]) => a.updatedAt - b.updatedAt)
+            .slice(0, overflowCount);
+
+        oldestSessions.forEach(([sessionId]) => conversationHistory.delete(sessionId));
+
+        if (oldestSessions.length > 0) {
+            console.log(`[AI Chat] cleaned ${oldestSessions.length} overflow sessions`);
+        }
+    }
+
+    if (expiredCount > 0) {
+        console.log(`[AI Chat] cleaned ${expiredCount} expired sessions`);
+    }
+};
 const buildDebugPayload = (error = {}, envStatus = getEnvironmentStatus()) => ({
     name: error?.name || "Error",
     code: error?.code || "UNKNOWN_ERROR",
@@ -44,7 +109,7 @@ const respondConfigReloadRequired = (res, envStatus) => {
 
 export const chat = async (req, res) => {
     try {
-        const { message, sessionId } = req.body;
+        const { message, sessionId, userName } = req.body;
         const envStatus = getEnvironmentStatus();
 
         if (envStatus.stale) {
@@ -65,33 +130,29 @@ export const chat = async (req, res) => {
             });
         }
 
-        let history = conversationHistory.get(sessionId);
-
-        if (!history) {
-            history = [];
-            conversationHistory.set(sessionId, history);
-            console.log(`[AI Chat] new session ${sessionId}`);
-        }
+        const session = getSession(sessionId);
+        const history = session.history || [];
 
         console.log(`[AI Chat] session=${sessionId}, history=${history.length}`);
 
-        const reply = await askChatbot(message, history);
+        const reply = await askChatbot(message, history, {
+            userName
+        });
 
         history.push({ role: "user", content: message });
         history.push({ role: "assistant", content: reply });
 
-        const MAX_MESSAGES = 20;
-        if (history.length > MAX_MESSAGES) {
-            history.splice(0, history.length - MAX_MESSAGES);
-        }
+        trimHistory(history);
+        session.history = history;
+        session.updatedAt = Date.now();
 
-        conversationHistory.set(sessionId, history);
+        conversationHistory.set(sessionId, session);
 
         return res.json({
             success: true,
             data: reply,
             sessionId,
-            historyLength: history.length,
+            historyLength: session.history.length,
             env: {
                 loadedAt: envStatus.loadedAt,
                 loadedFingerprint: envStatus.loadedFingerprint
@@ -102,7 +163,7 @@ export const chat = async (req, res) => {
         const debug = buildDebugPayload(error, envStatus);
         const userMessage =
             error?.userMessage ||
-            "Xin loi, minh dang gap loi khi xu ly. Ban thu lai sau vai giay nhe!";
+            "Xin lỗi, mình đang gặp lỗi khi xử lý. Bạn thử lại sau vài giây nhé!";
 
         console.error("[AI Chat] request failed", debug);
 
@@ -145,11 +206,13 @@ export const clearHistory = (req, res) => {
 };
 
 export const getStats = (req, res) => {
+    cleanupSessions();
     const envStatus = getEnvironmentStatus();
 
     return res.json({
         success: true,
         totalSessions: conversationHistory.size,
+        sessionTtlMs: SESSION_TTL_MS,
         env: {
             source: envStatus.source,
             loadedAt: envStatus.loadedAt,
@@ -157,19 +220,12 @@ export const getStats = (req, res) => {
             loadedFingerprint: envStatus.loadedFingerprint,
             currentFingerprint: envStatus.currentFingerprint
         },
-        sessions: Array.from(conversationHistory.entries()).map(([id, history]) => ({
+        sessions: Array.from(conversationHistory.entries()).map(([id, sesion]) => ({
             sessionId: id,
-            messageCount: history.length
+            messageCount: session.history.length,
+            updatedAt: new Date(session.updatedAt).toISOString()
         }))
     });
 };
 
-setInterval(() => {
-    const MAX_SESSIONS = 1000;
-
-    if (conversationHistory.size > MAX_SESSIONS) {
-        const oldestSessions = Array.from(conversationHistory.keys()).slice(0, 100);
-        oldestSessions.forEach((id) => conversationHistory.delete(id));
-        console.log(`[AI Chat] cleaned ${oldestSessions.length} old sessions`);
-    }
-}, 60 * 60 * 1000);
+setInterval(cleanupSessions, CLEANUP_INTERVAL_MS);

@@ -1,0 +1,575 @@
+.flash-admin-page {
+  color: #172033;
+}
+
+.flash-admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 28px;
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 122, 47, 0.18), transparent 32%),
+    linear-gradient(135deg, #fff7ed 0%, #ffffff 52%, #fff1f2 100%);
+  box-shadow: 0 24px 70px rgba(17, 24, 39, 0.08);
+}
+
+.flash-admin-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #f97316;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.flash-admin-kicker svg {
+  width: 18px;
+  height: 18px;
+}
+
+.flash-admin-header h1 {
+  margin: 10px 0 8px;
+  color: #111827;
+  font-size: clamp(30px, 4vw, 48px);
+  font-weight: 950;
+  line-height: 1;
+}
+
+.flash-admin-header p {
+  max-width: 680px;
+  margin: 0;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.flash-admin-primary,
+.flash-admin-secondary,
+.flash-admin-icon-danger,
+.flash-admin-row-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  border: 0;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.flash-admin-primary {
+  padding: 0 18px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #fb923c, #ef4444);
+  box-shadow: 0 16px 34px rgba(239, 68, 68, 0.22);
+}
+
+.flash-admin-secondary {
+  padding: 0 16px;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.flash-admin-secondary.danger,
+.flash-admin-icon-danger {
+  color: #dc2626;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+}
+
+.flash-admin-icon-danger {
+  width: 42px;
+  padding: 0;
+}
+
+.flash-admin-primary:hover,
+.flash-admin-secondary:hover,
+.flash-admin-icon-danger:hover,
+.flash-admin-row-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.flash-admin-primary:disabled,
+.flash-admin-secondary:disabled,
+.flash-admin-icon-danger:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
+.flash-admin-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.flash-admin-stats > div {
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(17, 24, 39, 0.05);
+}
+
+.flash-admin-stats span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.flash-admin-stats strong {
+  display: block;
+  margin-top: 7px;
+  color: #111827;
+  font-size: 22px;
+  font-weight: 950;
+}
+
+.flash-admin-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 330px) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.flash-admin-campaigns,
+.flash-admin-panel {
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(17, 24, 39, 0.06);
+}
+
+.flash-admin-campaigns {
+  position: sticky;
+  top: calc(var(--admin-topbar-height, 76px) + 22px);
+  padding: 18px;
+}
+
+.flash-admin-main {
+  display: grid;
+  gap: 22px;
+}
+
+.flash-admin-panel {
+  padding: 22px;
+}
+
+.flash-admin-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.flash-admin-section-title h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.flash-admin-section-title > span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.flash-admin-campaign-list {
+  display: grid;
+  gap: 10px;
+}
+
+.flash-admin-campaign-card {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #f8fafc;
+  color: #111827;
+  text-align: left;
+  cursor: pointer;
+}
+
+.flash-admin-campaign-card.active {
+  border-color: #fb923c;
+  background: #fff7ed;
+  box-shadow: inset 4px 0 0 #fb923c;
+}
+
+.flash-admin-campaign-card strong {
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.flash-admin-campaign-card small {
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.flash-admin-status {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.flash-admin-status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.flash-admin-status.active {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.flash-admin-status.scheduled {
+  color: #2563eb;
+  background: #dbeafe;
+}
+
+.flash-admin-status.ended {
+  color: #475569;
+  background: #e2e8f0;
+}
+
+.flash-admin-status.draft {
+  color: #b45309;
+  background: #fef3c7;
+}
+
+.flash-admin-status.cancelled {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+.flash-admin-form,
+.flash-admin-item-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.flash-admin-form label,
+.flash-admin-item-form label {
+  display: grid;
+  gap: 8px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.flash-admin-form input,
+.flash-admin-form textarea,
+.flash-admin-item-form input,
+.flash-admin-product-search input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #dbe2ea;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  outline: 0;
+  padding: 0 12px;
+}
+
+.flash-admin-form textarea {
+  min-height: 84px;
+  resize: vertical;
+  padding: 12px;
+}
+
+.flash-admin-form input:focus,
+.flash-admin-form textarea:focus,
+.flash-admin-item-form input:focus,
+.flash-admin-product-search input:focus {
+  border-color: #fb923c;
+  box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.12);
+}
+
+.flash-admin-span-2 {
+  grid-column: span 2;
+}
+
+.flash-admin-checkbox {
+  display: flex !important;
+  align-items: center;
+  grid-auto-flow: column;
+  justify-content: flex-start;
+}
+
+.flash-admin-checkbox input {
+  width: 18px;
+  min-height: 18px;
+  accent-color: #f97316;
+}
+
+.flash-admin-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.flash-admin-product-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.flash-admin-product-search > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 12px;
+  border: 1px solid #dbe2ea;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.flash-admin-product-search svg {
+  color: #94a3b8;
+}
+
+.flash-admin-product-search input {
+  border: 0;
+  box-shadow: none;
+  padding-left: 0;
+}
+
+.flash-admin-product-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.flash-admin-product-results button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #111827;
+  text-align: left;
+  cursor: pointer;
+}
+
+.flash-admin-product-results img,
+.flash-admin-product-cell img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #f1f5f9;
+}
+
+.flash-admin-product-results span,
+.flash-admin-product-cell span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.flash-admin-product-results strong,
+.flash-admin-product-cell strong {
+  overflow: hidden;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 950;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flash-admin-product-results small,
+.flash-admin-product-cell small {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.flash-admin-item-form {
+  grid-template-columns: 1.2fr repeat(4, minmax(100px, 0.55fr)) auto;
+  align-items: end;
+  margin-bottom: 18px;
+  padding: 14px;
+  border: 1px solid #eef2f7;
+  border-radius: 18px;
+  background: #f8fafc;
+}
+
+.flash-admin-table-wrap {
+  overflow-x: auto;
+}
+
+.flash-admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 820px;
+}
+
+.flash-admin-table th {
+  padding: 12px 14px;
+  color: #64748b;
+  background: #f8fafc;
+  font-size: 12px;
+  font-weight: 950;
+  text-align: left;
+}
+
+.flash-admin-table td {
+  padding: 14px;
+  border-bottom: 1px solid #eef2f7;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 750;
+  vertical-align: middle;
+}
+
+.flash-admin-product-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flash-admin-price,
+.flash-admin-old-price {
+  display: block;
+}
+
+.flash-admin-price {
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.flash-admin-old-price {
+  margin-top: 3px;
+  color: #94a3b8;
+  font-size: 11px;
+  text-decoration: line-through;
+}
+
+.flash-admin-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.flash-admin-progress {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+.flash-admin-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #fb923c, #ef4444);
+}
+
+.flash-admin-row-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.flash-admin-row-actions button {
+  width: 36px;
+  min-height: 36px;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.flash-admin-row-actions button.danger {
+  color: #dc2626;
+  background: #fff1f2;
+}
+
+.flash-admin-empty,
+.flash-admin-empty-cell {
+  padding: 24px;
+  color: #64748b;
+  background: #f8fafc;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.flash-admin-empty-cell {
+  border-radius: 0;
+}
+
+@media (max-width: 1200px) {
+  .flash-admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .flash-admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .flash-admin-campaigns {
+    position: static;
+  }
+
+  .flash-admin-item-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .flash-admin-header {
+    flex-direction: column;
+    padding: 22px;
+  }
+
+  .flash-admin-stats,
+  .flash-admin-form,
+  .flash-admin-item-form,
+  .flash-admin-product-search {
+    grid-template-columns: 1fr;
+  }
+
+  .flash-admin-span-2 {
+    grid-column: span 1;
+  }
+}

@@ -8,6 +8,7 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined'
+import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined'
 import { useDispatch, useSelector } from 'react-redux'
@@ -28,7 +29,7 @@ function Shipping() {
 
     // State cho Form
     const [address, setAddress] = useState(shippingInfo?.address || "")
-    const [pinCode, setPinCode] = useState(shippingInfo?.pinCode || "")
+    const [note, setNote] = useState(shippingInfo?.note || "")
     const [phoneNumber, setPhoneNumber] = useState(shippingInfo?.phoneNumber || "")
 
     // State cho Cascading Dropdowns
@@ -43,6 +44,10 @@ function Shipping() {
     // Ref để kiểm soát việc Auto-fill chỉ diễn ra một lần
     const hasAutoFilled = useRef(false);
 
+    // Lưu tạm quận/xã cần auto-fill.
+    // Không set cả 3 cấp cùng lúc vì Quận phụ thuộc Tỉnh, Xã phụ thuộc Quận.
+    const pendingAutoFill = useRef(null);
+
     // 2. Fetch danh sách địa chỉ của người dùng khi mount
     useEffect(() => {
         if (isAuthenticated && addresses.length === 0) {
@@ -54,29 +59,37 @@ function Shipping() {
     useEffect(() => {
         if (isAuthenticated && addresses.length > 0 && !hasAutoFilled.current && !address && !phoneNumber) {
             const defaultAddr = addresses.find(addr => addr.isDefault);
+
             if (defaultAddr) {
                 // Kiểm tra xem địa chỉ này có đầy đủ mã code không (Dành cho dữ liệu cũ)
-                if (!defaultAddr.provinceCode) {
+                if (!defaultAddr.provinceCode || !defaultAddr.districtCode || !defaultAddr.wardCode) {
                     toast.warning("Địa chỉ mặc định của bạn cần được cập nhật để sử dụng tính năng điền tự động", {
                         position: "top-center",
                         autoClose: false
                     });
-                    hasAutoFilled.current = true; // Không scan lại nữa
+                    hasAutoFilled.current = true;
                     return;
                 }
 
                 // Điền thông tin cơ bản
                 setAddress(defaultAddr.streetAddress || "");
                 setPhoneNumber(defaultAddr.phone || "");
-                setPinCode(defaultAddr.zipCode || "");
-                
-                // Điền thông tin địa chính (Mã code)
+                setNote(defaultAddr.note || "");
+
+                // Lưu quận/xã cần fill sau khi options đã load xong
+                pendingAutoFill.current = {
+                    districtCode: String(defaultAddr.districtCode),
+                    wardCode: String(defaultAddr.wardCode),
+                };
+
+                // Chỉ set tỉnh trước. Sau khi danh sách quận load xong mới set quận.
                 setProvinceCode(String(defaultAddr.provinceCode));
-                setDistrictCode(String(defaultAddr.districtCode));
-                setWardCode(String(defaultAddr.wardCode));
 
                 hasAutoFilled.current = true;
-                toast.success("Đã áp dụng địa chỉ mặc định của bạn", { position: "bottom-right", autoClose: 3000 });
+                toast.success("Đã áp dụng địa chỉ mặc định của bạn", {
+                    position: "bottom-right",
+                    autoClose: 3000
+                });
             }
         }
     }, [isAuthenticated, addresses, address, phoneNumber]);
@@ -88,18 +101,22 @@ function Shipping() {
                 const data = await getProvinces();
                 setProvinces(data);
             } catch (err) {
-                toast.error(err.message || "Không tải được danh sách tỉnh/thành", { position: "top-center" });
+                toast.error(err.message || "Không tải được danh sách tỉnh/thành", {
+                    position: "top-center"
+                });
             }
         };
+
         fetchProvincesList();
     }, []);
 
-    // 4.1 Xứ lý Tỉnh -> Quận: Cascading Dropdown thông minh
+    // 4.1 Xử lý Tỉnh -> Quận
     useEffect(() => {
         const fetchDistricts = async () => {
             if (!provinceCode) {
                 setDistrictsList([]);
                 setDistrictCode("");
+                setWardsList([]);
                 setWardCode("");
                 return;
             }
@@ -107,24 +124,48 @@ function Shipping() {
             try {
                 const data = await getDistrictsByProvince(provinceCode);
                 setDistrictsList(data);
-                
-                // ANTI-RESET LOGIC:
-                // Nếu districtCode hiện tại KHÔNG nằm trong danh sách Tỉnh mới -> Reset
-                // Nếu đang auto-fill (districtCode có sẵn và nằm trong data mới) -> Giữ nguyên
-                const isValid = data.find(d => String(d.code) === String(districtCode));
-                if (!isValid) {
-                    setDistrictCode("");
-                    setWardsList([]);
-                    setWardCode("");
+
+                const pendingDistrictCode = pendingAutoFill.current?.districtCode;
+
+                // Nếu đang auto-fill, set district sau khi danh sách quận đã có
+                if (pendingDistrictCode) {
+                    const isPendingDistrictValid = data.some(
+                        d => String(d.code) === String(pendingDistrictCode)
+                    );
+
+                    if (isPendingDistrictValid) {
+                        setDistrictCode(pendingDistrictCode);
+                    } else {
+                        setDistrictCode("");
+                        setWardsList([]);
+                        setWardCode("");
+                        pendingAutoFill.current = null;
+                    }
+
+                    return;
+                }
+
+                // Nếu user đổi tỉnh thủ công, kiểm tra district hiện tại còn hợp lệ không
+                if (districtCode) {
+                    const isValid = data.some(
+                        d => String(d.code) === String(districtCode)
+                    );
+
+                    if (!isValid) {
+                        setDistrictCode("");
+                        setWardsList([]);
+                        setWardCode("");
+                    }
                 }
             } catch {
                 toast.error("Không tải được danh sách quận/huyện");
             }
         };
-        fetchDistricts();
-    }, [provinceCode, districtCode]);
 
-    // 4.2 Xử lý Quận -> Xã: Cascading Dropdown thông minh
+        fetchDistricts();
+    }, [provinceCode]);
+
+    // 4.2 Xử lý Quận -> Xã
     useEffect(() => {
         const fetchWards = async () => {
             if (!districtCode) {
@@ -137,24 +178,71 @@ function Shipping() {
                 const data = await getWardsByDistrict(districtCode);
                 setWardsList(data);
 
-                // ANTI-RESET LOGIC: Tương tự như phần Tỉnh -> Quận
-                const isValid = data.find(w => String(w.code) === String(wardCode));
-                if (!isValid) {
-                    setWardCode("");
+                const pendingWardCode = pendingAutoFill.current?.wardCode;
+
+                // Nếu đang auto-fill, set ward sau khi danh sách xã đã có
+                if (pendingWardCode) {
+                    const isPendingWardValid = data.some(
+                        w => String(w.code) === String(pendingWardCode)
+                    );
+
+                    if (isPendingWardValid) {
+                        setWardCode(pendingWardCode);
+                    } else {
+                        setWardCode("");
+                    }
+
+                    pendingAutoFill.current = null;
+                    return;
+                }
+
+                // Nếu user đổi quận thủ công, kiểm tra ward hiện tại còn hợp lệ không
+                if (wardCode) {
+                    const isValid = data.some(
+                        w => String(w.code) === String(wardCode)
+                    );
+
+                    if (!isValid) {
+                        setWardCode("");
+                    }
                 }
             } catch {
                 toast.error("Không tải được danh sách phường/xã");
             }
         };
+
         fetchWards();
-    }, [districtCode, wardCode]);
+    }, [districtCode]);
+
+    const handleProvinceChange = (e) => {
+        pendingAutoFill.current = null;
+        setProvinceCode(e.target.value);
+        setDistrictCode("");
+        setWardsList([]);
+        setWardCode("");
+    };
+
+    const handleDistrictChange = (e) => {
+        pendingAutoFill.current = null;
+        setDistrictCode(e.target.value);
+        setWardCode("");
+    };
+
+    const handleWardChange = (e) => {
+        pendingAutoFill.current = null;
+        setWardCode(e.target.value);
+    };
 
     const shippingInfoSubmit = (e) => {
         e.preventDefault();
+
         if (phoneNumber.length !== 10) {
-            toast.error("Số điện thoại phải có 10 chữ số", { position: 'top-center' });
+            toast.error("Số điện thoại phải có 10 chữ số", {
+                position: 'top-center'
+            });
             return;
         }
+
         if (!address || !provinceCode || !districtCode || !wardCode) {
             toast.error("Vui lòng nhập đầy đủ thông tin giao hàng");
             return;
@@ -166,7 +254,7 @@ function Shipping() {
 
         dispatch(saveShippingInfo({
             address,
-            pinCode,
+            note,
             phoneNumber,
             country: "VN",
             provinceCode,
@@ -228,12 +316,12 @@ function Shipping() {
                                     <select
                                         id="shipping-province"
                                         value={provinceCode}
-                                        onChange={(e) => setProvinceCode(e.target.value)}
+                                        onChange={handleProvinceChange}
                                         required
                                     >
                                         <option value="" disabled>Chọn Tỉnh/Thành</option>
                                         {provinces.map((p) => (
-                                            <option key={p.code} value={p.code}>{p.name}</option>
+                                            <option key={p.code} value={String(p.code)}>{p.name}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -243,13 +331,13 @@ function Shipping() {
                                     <select
                                         id="shipping-district"
                                         value={districtCode}
-                                        onChange={(e) => setDistrictCode(e.target.value)}
+                                        onChange={handleDistrictChange}
                                         disabled={!provinceCode}
                                         required
                                     >
                                         <option value="" disabled>Chọn Quận/Huyện</option>
                                         {districts.map((d) => (
-                                            <option key={d.code} value={d.code}>{d.name}</option>
+                                            <option key={d.code} value={String(d.code)}>{d.name}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -259,27 +347,15 @@ function Shipping() {
                                     <select
                                         id="shipping-ward"
                                         value={wardCode}
-                                        onChange={(e) => setWardCode(e.target.value)}
+                                        onChange={handleWardChange}
                                         disabled={!districtCode}
                                         required
                                     >
                                         <option value="" disabled>Chọn Phường/Xã</option>
                                         {wards.map((w) => (
-                                            <option key={w.code} value={w.code}>{w.name}</option>
+                                            <option key={w.code} value={String(w.code)}>{w.name}</option>
                                         ))}
                                     </select>
-                                </div>
-
-                                <div className="shipping-field">
-                                    <label htmlFor="shipping-pin">Mã bưu điện</label>
-                                    <input
-                                        id="shipping-pin"
-                                        placeholder="Ví dụ: 70000"
-                                        type="text"
-                                        inputMode="numeric"
-                                        value={pinCode}
-                                        onChange={(e) => setPinCode(e.target.value)}
-                                    />
                                 </div>
 
                                 <div className="shipping-field">
@@ -295,6 +371,20 @@ function Shipping() {
                                             required
                                             value={phoneNumber}
                                             onChange={(e) => setPhoneNumber(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="shipping-field full">
+                                    <label htmlFor="shipping-note">Ghi chú</label>
+                                    <div className="shipping-input-wrap">
+                                        <NoteAltIcon />
+                                        <input
+                                            id="shipping-note"
+                                            placeholder="..."
+                                            type="text"
+                                            value={note}
+                                            onChange={(e) => setNote(e.target.value)}
                                         />
                                     </div>
                                 </div>
@@ -316,7 +406,7 @@ function Shipping() {
                         </section>
 
                         <aside className="shipping-support-card">
-                            <h2>Giao hàng </h2>
+                            <h2>Giao hàng Góc Sách</h2>
                             <div className="shipping-support-list">
                                 <div className="shipping-support-item">
                                     <CheckCircleOutlineIcon />
