@@ -66,7 +66,8 @@ const OrderDetails = () => {
   const dispatch = useDispatch();
   const { loading, error, orderDetails } = useSelector((state) => state.order);
   const { user } = useSelector((state) => state.user);
-
+  console.log("orderDetails",orderDetails);
+  
   useEffect(() => {
     if (id) {
       dispatch(getOrderDetails(id));
@@ -256,20 +257,20 @@ const OrderDetails = () => {
           <div className="space-y-3">
             <div className="flex">
               <span className="w-32 text-slate-500 text-sm font-medium">Họ và tên:</span>
-              <span className="text-sm font-semibold text-slate-800">{orderDetails.user?.name || 'N/A'}</span>
+              <span className="text-sm font-semibold text-slate-800">{orderDetails.user_id?.name || 'N/A'}</span>
             </div>
             <div className="flex">
               <span className="w-32 text-slate-500 text-sm font-medium">Số điện thoại:</span>
-              <span className="text-sm font-semibold text-slate-800">{orderDetails.shippingInfo?.phoneNo || 'N/A'}</span>
+              <span className="text-sm font-semibold text-slate-800">{orderDetails.shippingInfo?.phone || 'N/A'}</span>
             </div>
             <div className="flex">
               <span className="w-32 text-slate-500 text-sm font-medium">Email:</span>
-              <span className="text-sm font-semibold text-slate-800">{orderDetails.user?.email || 'N/A'}</span>
+              <span className="text-sm font-semibold text-slate-800">{orderDetails.user_id?.email || 'N/A'}</span>
             </div>
             <div className="flex">
               <span className="w-32 text-slate-500 text-sm font-medium">Địa chỉ:</span>
               <span className="text-sm font-semibold text-slate-800">
-                {`${orderDetails.shippingInfo?.address}, ${orderDetails.shippingInfo?.ward}, ${orderDetails.shippingInfo?.district}, ${orderDetails.shippingInfo?.province}`}
+                {`${orderDetails.shippingInfo?.streetAddress}, ${orderDetails.shippingInfo?.ward}, ${orderDetails.shippingInfo?.district}, ${orderDetails.shippingInfo?.province}`}
               </span>
             </div>
           </div>
