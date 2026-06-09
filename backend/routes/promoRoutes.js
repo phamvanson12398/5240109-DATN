@@ -88,7 +88,7 @@ const createVoucher = asyncErrorHandler(async (req, res, next) => {
       await Notification.create({
         userId: null, // Thông báo chung cho mọi người
         title: '🎁 Mã giảm giá mới cực hời!',
-        message: `Tobi Shop vừa tung mã [${voucher.code}] giảm ${voucher.discount.type === 'percentage' ? `${voucher.discount.value}%` : `${voucher.discount.value.toLocaleString('vi-VN')}₫`}. Dùng ngay kẻo lỡ!`,
+        message: `Góc Sách vừa tung mã [${voucher.code}] giảm ${voucher.discount.type === 'percentage' ? `${voucher.discount.value}%` : `${voucher.discount.value.toLocaleString('vi-VN')}₫`}. Dùng ngay kẻo lỡ!`,
         type: 'promotion',
         link: '/cart'
       });
