@@ -237,7 +237,6 @@ export const getSingleProduct = handleAsyncError(async (req, res, next) => {
         return next(new HandleError("Sản phẩm không tồn tại", 404))
     }
     const relatedProducts = await getRelatedProductsLevel1({
-        brand: product.brand,
         category: product.category,
         limit: 4,
         excludeProductId: product._id
@@ -477,8 +476,11 @@ export const importProducts = handleAsyncError(async (req, res, next) => {
             originalPrice: getValue([
                 'Giá Gốc',
                 'Giá gốc',
+                'Giá niêm yết',
                 'Original Price',
-                'originalPrice'
+                'OriginalPrice',
+                'originalPrice',
+                'original_price'
             ]),
 
             stock: getValue([
@@ -526,10 +528,31 @@ export const importProducts = handleAsyncError(async (req, res, next) => {
                 'publishYear'
             ]),
 
+            author: getValue([
+                "Tác giả",
+                "Tac gia",
+                "Author",
+                "author"
+            ]),
+
+            page: getValue([
+                "Số trang",
+                "So trang",
+                "Page",
+                "Pages",
+                "page",
+                "pages",
+                "pageCount",
+            ]),
+
             page: getValue([
                 'Số trang',
+                'So trang',
                 'Page',
-                'page'
+                'Pages',
+                'page',
+                'pages',
+                'pageCount'
             ]),
 
             language: getValue([
@@ -584,21 +607,29 @@ export const importProducts = handleAsyncError(async (req, res, next) => {
                 name: productName,
                 description: String(item.description).trim(),
                 price: Number(item.price),
-                originalPrice: Number(item.originalPrice) || 0,
+                originalPrice:
+                    item.originalPrice !== null &&
+                        item.originalPrice !== undefined &&
+                        item.originalPrice !== ''
+                        ? Number(item.originalPrice)
+                        : Number(item.price),
                 stock: Number(item.stock),
+
                 category: {
                     level1: String(item.categoryLevel1).trim(),
                     level2: String(item.categoryLevel2).trim(),
                 },
-                keyword: [
-                    String(item.keyword).trim(),
-                ],
-                publisher: item.publisher ? String(item.publisher).trim() : 'No publisher',
-                material: item.material ? String(item.material).trim() : '',
-                sold: Number(item.sold),
-                language: String(item.language),
-                page: Number(item.page),
-                user: req.user.id
+
+                keyword: String(item.keyword || "").trim(),
+
+                publisher: item.publisher ? String(item.publisher).trim() : "No publisher",
+                material: item.material ? String(item.material).trim() : "",
+                sold: Number(item.sold) || 0,
+                language: item.language ? String(item.language).trim() : "Tiếng Việt",
+                author: item.author ? String(item.author).trim() : "",
+                publishYear: Number(item.publishYear) || null,
+                page: item.page ? Number(item.page) : 0,
+                user: req.user.id,
             };
 
 

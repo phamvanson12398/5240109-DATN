@@ -31,7 +31,7 @@ function ProductInfo({ product, discountPercent, originalPrice, soldCount, quant
       </div>
       <br />
 
-      <div className="bg-gray-50 rounded-xl p-4 space-y-3 border border-gray-200 shadow-sm">
+      {/* <div className="bg-gray-50 rounded-xl p-4 space-y-3 border border-gray-200 shadow-sm">
 
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-500 font-medium">
@@ -60,6 +60,70 @@ function ProductInfo({ product, discountPercent, originalPrice, soldCount, quant
 
           <span className="text-gray-900 font-semibold">
             {product.publishYear || '1999'}
+          </span>
+        </div>
+        
+      </div> */}
+      <div className="bg-gray-50 rounded-xl p-4 space-y-3 border border-gray-200 shadow-sm">
+
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500 font-medium">
+            ✍️ Tác giả
+          </span>
+
+          <span className="text-gray-900 font-semibold">
+            {product.author || "Vô danh"}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500 font-medium">
+            🏢 Nhà xuất bản
+          </span>
+
+          <span className="text-gray-900 font-semibold">
+            {product.publisher || "Chưa cập nhật"}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500 font-medium">
+            📅 Năm xuất bản
+          </span>
+
+          <span className="text-gray-900 font-semibold">
+            {product.publishYear || "Chưa cập nhật"}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500 font-medium">
+            📖 Số trang
+          </span>
+
+          <span className="text-gray-900 font-semibold">
+            {product.page || 0} trang
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500 font-medium">
+            🌐 Ngôn ngữ
+          </span>
+
+          <span className="text-gray-900 font-semibold">
+            {product.language || "Tiếng Việt"}
+          </span>
+        </div>
+
+        
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500 font-medium">
+            🔥 Đã bán
+          </span>
+
+          <span className="text-gray-900 font-semibold">
+            {product.sold || 0}
           </span>
         </div>
 

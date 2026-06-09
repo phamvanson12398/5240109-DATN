@@ -49,10 +49,11 @@ export async function askChatbot(userMessage, conversationHistory = [], options 
         const products = await getProducts();
 
         const relevantProducts = filterRelevantProducts(products, userMessage);
-
+        console.log("relevantProducts", relevantProducts);
         const productContext = formatProductContext(relevantProducts);
 
         const historyContext = formatHistoryContext(conversationHistory);
+        console.log("productContext", productContext);
 
         const prompt = buildPrompt({
             productContext,

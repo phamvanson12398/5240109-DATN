@@ -15,7 +15,7 @@ export default function CategoryTable({
   const parentCategories = categories.filter((category) => {
     return !category.parentId;
   });
-
+ 
   const getChildCategories = (parentId) => {
     return allCategories.filter((category) => {
       const categoryParentId =

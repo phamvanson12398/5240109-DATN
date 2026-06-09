@@ -33,28 +33,28 @@ export function formatProductContext(products = []) {
           : "";
 
       return `${index + 1}. ID nội bộ: ${product._id}
-Tên sách: ${product.name}
-Giá: ${formatCurrency(product.price)}${saleInfo}
-Link mua: ${productUrl}
-Link thêm giỏ: ${cartUrl}
-Danh mục: ${category}
-Tác giả: ${product.author || "N/A"}
-Nhà xuất bản: ${product.publisher || "N/A"}
-Năm xuất bản: ${product.publishYear || "N/A"}
-Số trang: ${product.page || "N/A"}
-Ngôn ngữ: ${product.language || "N/A"}
-Từ khóa: ${
-        Array.isArray(product.keyword)
-          ? product.keyword.join(", ")
-          : product.keyword || "N/A"
-      }
-Mô tả: ${product.description || "N/A"}
-Tồn kho: ${stockStatus}
-Đã bán: ${product.sold || 0}
-Đánh giá: ${product.ratings || 0}/5`;
-    })
-    .join("\n---\n");
-}
+    Tên sách: ${product.name}
+    Giá: ${formatCurrency(product.price)}${saleInfo}
+    Link mua: ${productUrl}
+    Link thêm giỏ: ${cartUrl}
+    Danh mục: ${category}
+    Tác giả: ${product.author || "N/A"}
+    Nhà xuất bản: ${product.publisher || "N/A"}
+    Năm xuất bản: ${product.publishYear || "N/A"}
+    Số trang: ${product.page || "N/A"}
+    Ngôn ngữ: ${product.language || "N/A"}
+    Từ khóa: ${
+            Array.isArray(product.keyword)
+              ? product.keyword.join(", ")
+              : product.keyword || "N/A"
+          }
+    Mô tả: ${product.description || "N/A"}
+    Tồn kho: ${stockStatus}
+    Đã bán: ${product.sold || 0}
+    Đánh giá: ${product.ratings || 0}/5`;
+        })
+        .join("\n---\n");
+    }
 
 export function formatHistoryContext(history = []) {
   if (!Array.isArray(history) || history.length === 0) return null;

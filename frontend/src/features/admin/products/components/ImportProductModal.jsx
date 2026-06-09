@@ -193,70 +193,102 @@ function ImportProductModal({ onClose, onImportSuccess }) {
                 // Trạng thái
                 status: "available",
 
+
                 // SKU
-                sku: "BOOK33",
+                sku: "BOOK001",
 
                 // Tên sách
                 name: "Cho Tôi Xin Một Vé Đi Tuổi Thơ",
 
-                description:"test",
-                // Giá
+                // Mô tả
+                description:
+                    "Tác phẩm nổi tiếng của Nguyễn Nhật Ánh đưa người đọc trở về với thế giới tuổi thơ hồn nhiên, trong sáng và đầy cảm xúc.",
+
+                // Giá bán
                 price: 85000,
+
+                // Giá gốc
+                originalPrice: 99000,
 
                 // Tồn kho
                 stock: 120,
 
-                // Danh mục cấp 1
-                category_level1: "sach_viet_nam",
+                // Danh mục cấp 1 (ID Category)
+                category_level1: "6a196237765954cad1a84ac6",
 
-                // Danh mục cấp 2
-                category_level2: "tieu_thuyet",
+                // Danh mục cấp 2 (ID Category)
+                category_level2: "6a196291765954cad1a84ae5",
 
+                // Tác giả
+                author: "Nguyễn Nhật Ánh",
 
                 // Nhà xuất bản
                 publisher: "NXB Trẻ",
 
-                // Năm XB
+                // Năm xuất bản
                 publishYear: 2023,
+
+                // Số trang
+                page: 208,
 
                 // Ngôn ngữ
                 language: "Tiếng Việt",
 
-                keyword: ["van_hoc"]
+                // Keyword (String)
+                keyword: "tuoi-tho"
+
+
             },
 
             {
                 // Trạng thái
                 status: "available",
 
+
                 // SKU
-                sku: "BOOK98",
+                sku: "BOOK002",
 
                 // Tên sách
                 name: "Atomic Habits",
 
-                description:"test",
-                // Giá
+                // Mô tả
+                description:
+                    "Cuốn sách bán chạy của James Clear hướng dẫn cách xây dựng thói quen tốt, loại bỏ thói quen xấu và tạo ra những thay đổi tích cực lâu dài.",
+
+                // Giá bán
                 price: 320000,
+
+                // Giá gốc
+                originalPrice: 399000,
 
                 // Tồn kho
                 stock: 45,
 
-                // Danh mục cấp 1
-                category_level1: "FOREIGN BOOKS",
+                // Danh mục cấp 1 (ID Category)
+                category_level1: "6a196590765954cad1a84b45",
 
-                // Danh mục cấp 2
-                category_level2: "Self-help",
+                // Danh mục cấp 2 (ID Category)
+                category_level2: "6a26469692f10942f691e8ad",
+
+                // Tác giả
+                author: "James Clear",
 
                 // Nhà xuất bản
                 publisher: "Penguin Random House",
 
-                // Năm XB
+                // Năm xuất bản
                 publishYear: 2020,
+
+                // Số trang
+                page: 320,
 
                 // Ngôn ngữ
                 language: "English",
-                keyword: ["van_hoc"]
+
+                // Keyword (String)
+                keyword: "atomic-habits"
+
+
             }
         ];
 

@@ -116,75 +116,109 @@ function StockManagement({ onAddNew }) {
 
     const handleDownloadStockTemplate = () => {
 
-       const template = [
-        {
-            status: "available",
-            name: "7 Thói Quen Hiệu Quả - The 7 Habits Of Highly Effective People",
-            description: "edfsf",
-            price: 67000,
-            originalPrice: 99000,
-            stock: 200,
-            sold: 0,
+        const template = [
+            {
+                // Trạng thái
+                status: "available",
 
-            category_level1: "6a196237765954cad1a84ac6",
-            category_level2: "6a196966765954cad1a84bfb",
 
-            publisher: "Dale Carnegie",
-            publishYear: 2000,
-            page: 100,
-            language: "Tiếng Việt",
-            ratings: 0,
-            numOfReviews: 0,
-            status: "available",
-            keyword: "",
-            level: "",
-            author: "Thế giới"
-        },
-        {
-            status: "available",
-            name: "Cho Tôi Xin Một Vé Đi Tuổi Thơ",
-            description: "Sách văn học Việt Nam",
-            price: 85000,
-            originalPrice: 100000,
-            stock: 120,
-            sold: 0,
+                // SKU
+                sku: "BOOK001",
 
-            category_level1: "ID_DANH_MUC_CAP_1",
-            category_level2: "ID_DANH_MUC_CAP_2",
+                // Tên sách
+                name: "Cho Tôi Xin Một Vé Đi Tuổi Thơ",
 
-            publisher: "NXB Trẻ",
-            publishYear: 2023,
-            page: 208,
-            language: "Tiếng Việt",
-            ratings: 0,
-            numOfReviews: 0,
-            keyword: "van_hoc",
-            level: "",
-            author: "Nguyễn Nhật Ánh"
-        },
-        {
-            status: "available",
-            name: "Atomic Habits",
-            description: "An easy and proven way to build good habits and break bad ones",
-            price: 320000,
-            originalPrice: 390000,
-            stock: 45,
-            sold: 0,
+                // Mô tả
+                description:
+                    "Tác phẩm nổi tiếng của Nguyễn Nhật Ánh đưa người đọc trở về với thế giới tuổi thơ hồn nhiên, trong sáng và đầy cảm xúc.",
 
-            category_level1: "ID_DANH_MUC_CAP_1",
-            category_level2: "ID_DANH_MUC_CAP_2",
+                // Giá bán
+                price: 85000,
 
-            publisher: "Penguin Random House",
-            publishYear: 2020,
-            page: 320,
-            language: "English",
-            ratings: 0,
-            numOfReviews: 0,
-            keyword: "self_help",
-            level: "",
-            author: "James Clear"
-        }
-    ];
+                // Giá gốc
+                originalPrice: 99000,
+
+                // Tồn kho
+                stock: 120,
+
+                // Danh mục cấp 1 (ID Category)
+                category_level1: "6a196237765954cad1a84ac6",
+
+                // Danh mục cấp 2 (ID Category)
+                category_level2: "6a196291765954cad1a84ae5",
+
+                // Tác giả
+                author: "Nguyễn Nhật Ánh",
+
+                // Nhà xuất bản
+                publisher: "NXB Trẻ",
+
+                // Năm xuất bản
+                publishYear: 2023,
+
+                // Số trang
+                page: 208,
+
+                // Ngôn ngữ
+                language: "Tiếng Việt",
+
+                // Keyword (String)
+                keyword: "tuoi-tho"
+
+
+            },
+
+            {
+                // Trạng thái
+                status: "available",
+
+
+                // SKU
+                sku: "BOOK002",
+
+                // Tên sách
+                name: "Atomic Habits",
+
+                // Mô tả
+                description:
+                    "Cuốn sách bán chạy của James Clear hướng dẫn cách xây dựng thói quen tốt, loại bỏ thói quen xấu và tạo ra những thay đổi tích cực lâu dài.",
+
+                // Giá bán
+                price: 320000,
+
+                // Giá gốc
+                originalPrice: 399000,
+
+                // Tồn kho
+                stock: 45,
+
+                // Danh mục cấp 1 (ID Category)
+                category_level1: "6a196590765954cad1a84b45",
+
+                // Danh mục cấp 2 (ID Category)
+                category_level2: "6a26469692f10942f691e8ad",
+
+                // Tác giả
+                author: "James Clear",
+
+                // Nhà xuất bản
+                publisher: "Penguin Random House",
+
+                // Năm xuất bản
+                publishYear: 2020,
+
+                // Số trang
+                page: 320,
+
+                // Ngôn ngữ
+                language: "English",
+
+                // Keyword (String)
+                keyword: "atomic-habits"
+
+
+            }
+        ];
 
         const ws = XLSX.utils.json_to_sheet(template);
 

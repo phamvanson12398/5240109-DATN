@@ -15,7 +15,7 @@ export function useCategoryManagement() {
     const [isOpenModal, setIsOpenModal] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 20;
 
     const fetchCategories = async () => {
         try {
@@ -30,6 +30,8 @@ export function useCategoryManagement() {
         fetchCategories();
     }, []);
 
+
+    
     const filteredCategories = useMemo(() => {
         const keyword = removeVietnameseTones(searchTerm.trim());
 

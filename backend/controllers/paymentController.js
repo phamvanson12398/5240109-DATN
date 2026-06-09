@@ -230,23 +230,48 @@ const updateOrderPaymentStatus = async (query) => {
 /**
  * Xử lý Return URL - Redirect từ VNPay
  */
+// export const vnpayReturn = handleAsyncError(async (req, res, next) => {
+//     const query = req.query;
+//     const vnpay = getVnpayInstance();
+//     const verify = vnpay.verifyReturnUrl(query);
+
+//     if (verify.isSuccess) {
+//         // Cập nhật database ngay lập tức (Hữu ích cho localhost và feedback nhanh)
+//         await updateOrderPaymentStatus(query);
+
+//         if (query.vnp_ResponseCode === '00') {
+//             res.redirect(`${process.env.FRONTEND_URL}/payment/success?orderId=${query.vnp_TxnRef}&vnp_ResponseCode=${query.vnp_ResponseCode}`);
+//         } else {
+//             res.redirect(`${process.env.FRONTEND_URL}/payment/failed?orderId=${query.vnp_TxnRef}&vnp_ResponseCode=${query.vnp_ResponseCode}`);
+//         }
+//     } else {
+//         res.redirect(`${process.env.FRONTEND_URL}/payment/failed?orderId=${query.vnp_TxnRef}&vnp_ResponseCode=97`);
+//     }
+// });
 export const vnpayReturn = handleAsyncError(async (req, res, next) => {
-    const query = req.query;
-    const vnpay = getVnpayInstance();
-    const verify = vnpay.verifyReturnUrl(query);
+  const query = req.query;
+  const vnpay = getVnpayInstance();
+  const verify = vnpay.verifyReturnUrl(query);
 
-    if (verify.isSuccess) {
-        // Cập nhật database ngay lập tức (Hữu ích cho localhost và feedback nhanh)
-        await updateOrderPaymentStatus(query);
+  const orderId = query.vnp_TxnRef;
 
-        if (query.vnp_ResponseCode === '00') {
-            res.redirect(`${process.env.FRONTEND_URL}/payment/success?orderId=${query.vnp_TxnRef}&vnp_ResponseCode=${query.vnp_ResponseCode}`);
-        } else {
-            res.redirect(`${process.env.FRONTEND_URL}/payment/failed?orderId=${query.vnp_TxnRef}&vnp_ResponseCode=${query.vnp_ResponseCode}`);
-        }
-    } else {
-        res.redirect(`${process.env.FRONTEND_URL}/payment/failed?orderId=${query.vnp_TxnRef}&vnp_ResponseCode=97`);
-    }
+  if (!verify.isSuccess) {
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/payment/failed?orderId=${orderId}&vnp_ResponseCode=97`
+    );
+  }
+
+  await updateOrderPaymentStatus(query);
+
+  if (query.vnp_ResponseCode === "00") {
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/payment/success?orderId=${orderId}&vnp_ResponseCode=00`
+    );
+  }
+
+  return res.redirect(
+    `${process.env.FRONTEND_URL}/payment/failed?orderId=${orderId}&vnp_ResponseCode=${query.vnp_ResponseCode}`
+  );
 });
 
 /**
